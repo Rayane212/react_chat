@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import Add from '../img/addAvatar.png'
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile, getIdToken } from "firebase/auth";
 import { auth, storage, db } from "../firebase"
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import {doc, setDoc} from "firebase/firestore"
+import { doc, setDoc } from "firebase/firestore"
 
 
 const Register = () => {
     const [err, setErr] = useState(false);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         const displayName = e.target[0].value;
@@ -23,30 +24,39 @@ const Register = () => {
             const uploadTask = uploadBytesResumable(storageRef, file);
 
             uploadTask.on('state_changed',
-                
+                (snapshot) => {
+                    // Handle upload progress if needed
+                },
                 (error) => {
-                    console.log(error)
+                    console.log("ERROR 1 : " + error);
                     setErr(true);
                 },
-                () => {
-                    getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-                        await updateProfile(res.user, {
+                async () => {
+                    try {
+                        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+
+                        const { currentUser } = auth
+                        const token = await getIdToken(currentUser, true)
+
+                        updateProfile(res.user, {
                             displayName,
-                            photoURL:downloadURL,
-                        });
-                        await setDoc(doc(db, "users",  res.user.uid), {
-                            uid:  res.user.uid,
+                            photoURL: downloadURL,
+                        }, token);
+                        setDoc(doc(db, "users", currentUser.uid), {
+                            uid: currentUser.uid,
                             displayName,
                             email,
                             photoURL: downloadURL,
                         });
-                    });
+                    } catch (error) {
+                        console.log("ERROR 2 : " + error);
+                        setErr(true);
+                    }
                 }
             );
-
-            
         } catch (err) {
-            setErr(true)
+            console.log("ERROR 3 :" + err);
+            setErr(true);
         }
 
 
