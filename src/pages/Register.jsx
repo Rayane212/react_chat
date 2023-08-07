@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import Add from '../img/addAvatar.png'
-import { createUserWithEmailAndPassword, updateProfile, getIdToken } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, storage, db } from "../firebase"
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { doc, setDoc } from "firebase/firestore"
+import {useNavigate, Link} from 'react-router-dom'
 
 
 const Register = () => {
     const [err, setErr] = useState(false);
+    const navigate = useNavigate()
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -17,7 +19,7 @@ const Register = () => {
         const file = e.target[3].files[0];
 
         try {
-            const res = createUserWithEmailAndPassword(auth, email, password);
+            const res = await createUserWithEmailAndPassword(auth, email, password);
 
             const storageRef = ref(storage, displayName);
 
@@ -31,23 +33,25 @@ const Register = () => {
                     console.log("ERROR 1 : " + error);
                     setErr(true);
                 },
-                async () => {
+                () => {
                     try {
-                        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                        getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+                            await updateProfile(res.user, {
+                                displayName,
+                                photoURL: downloadURL,
+                            });
+                            await setDoc(doc(db, "users", res.user.uid), {
+                                uid: res.user.uid,
+                                displayName,
+                                email,
+                                photoURL: downloadURL,
+                            });
+                            await setDoc(doc(db, "userChats", res.user.uid), {});
 
-                        const { currentUser } = auth
-                        const token = await getIdToken(currentUser, true)
-
-                        updateProfile(res.user, {
-                            displayName,
-                            photoURL: downloadURL,
-                        }, token);
-                        setDoc(doc(db, "users", currentUser.uid), {
-                            uid: currentUser.uid,
-                            displayName,
-                            email,
-                            photoURL: downloadURL,
+                            navigate("/")
                         });
+
+      
                     } catch (error) {
                         console.log("ERROR 2 : " + error);
                         setErr(true);
@@ -58,7 +62,6 @@ const Register = () => {
             console.log("ERROR 3 :" + err);
             setErr(true);
         }
-
 
     }
 
@@ -79,7 +82,8 @@ const Register = () => {
                     <button>Sign up</button>
                     {err && <span>Something went wrong</span>}
                 </form>
-                <p>You do have an account? Login </p>
+
+                <p>You do have an account? <Link to="/login">Login</Link> </p>
 
             </div>
         </div>

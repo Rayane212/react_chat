@@ -281,6 +281,10 @@
             }
           }
         }
+
+        .messages::-webkit-scrollbar{
+          display: none;
+        }
   
         .input {
           height: 50px;
