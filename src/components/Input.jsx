@@ -15,44 +15,48 @@ const Input = () => {
   const { currentUser } = useContext(AuthContext);
   const { data } = useContext(ChatContext);
 
-  const handleSend = async () =>{
+  const handleKey = (e) => {
+    e.code === "Enter" && handleSend()
+  };
 
-    if(img){
+  const handleSend = async () => {
+
+    if (img) {
 
       const storageRef = ref(storage, uuid());
 
       const uploadTask = uploadBytesResumable(storageRef, img);
 
       uploadTask.on('state_changed',
-                (snapshot) => {
-                    // Handle upload progress if needed
-                },
-                (error) => {
-                    //console.log("ERROR 1 : " + error);
-                    //setErr(true);
-                },
-                () => {
-                    try {
-                        getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-                          await updateDoc(doc(db, "chats", data.chatId), {
-                            messages: arrayUnion({
-                              id: uuid(),
-                              text,
-                              senderId: currentUser.uid,
-                              date: Timestamp.now(),
-                              img: downloadURL,
-                            }),
-                          })
-                        });
+        (snapshot) => {
+          // Handle upload progress if needed
+        },
+        (error) => {
+          //console.log("ERROR 1 : " + error);
+          //setErr(true);
+        },
+        () => {
+          try {
+            getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+              await updateDoc(doc(db, "chats", data.chatId), {
+                messages: arrayUnion({
+                  id: uuid(),
+                  text,
+                  senderId: currentUser.uid,
+                  date: Timestamp.now(),
+                  img: downloadURL,
+                }),
+              })
+            });
 
-      
-                    } catch (error) {
-                      
-                    }
-                }
-            );
 
-    } else{
+          } catch (error) {
+
+          }
+        }
+      );
+
+    } else {
       await updateDoc(doc(db, "chats", data.chatId), {
         messages: arrayUnion({
           id: uuid(),
@@ -64,25 +68,27 @@ const Input = () => {
     }
 
     await updateDoc(doc(db, "userChats", currentUser.uid), {
-      [data.chatId + ".lastMessage"]:{
+      [data.chatId + ".lastMessage"]: {
         text,
       },
-      [data.chatId +".date"]: serverTimestamp(),
+      [data.chatId + ".date"]: serverTimestamp(),
     });
     await updateDoc(doc(db, "userChats", data.user.uid), {
-      [data.chatId + ".lastMessage"]:{
+      [data.chatId + ".lastMessage"]: {
         text,
       },
-      [data.chatId +".date"]: serverTimestamp(),
+      [data.chatId + ".date"]: serverTimestamp(),
     });
 
     setText("");
     setImg(null);
   };
 
+ 
+
   return (
     <div className='input'>
-      <input type="text" placeholder='Type something...' onChange={e => setText(e.target.value)} value={text}/>
+      <input type="text" placeholder='Type something...' onKeyDown={handleKey} onChange={e => setText(e.target.value)} value={text} />
       <div className="send">
         <img src={Attach} alt="" />
         <input type="file" style={{ display: 'none' }} id="file" onChange={e => setImg(e.target.files[0])} />
