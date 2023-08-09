@@ -7,12 +7,16 @@ import { Timestamp, arrayUnion, doc, serverTimestamp, updateDoc } from 'firebase
 import { db, storage } from '../firebase';
 import { v4 as uuid } from 'uuid';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
+import LinearDeterminate from './mui/LinearDeterminate';
+import { Alert } from '@mui/material';
+
 
 const Input = () => {
   const [text, setText] = useState("");
   const [img, setImg] = useState(null);
   const [video, setVideo] = useState(null);
   const [progress, setProgress] = useState(0);
+  const [error,setError] = useState(false);
 
   const { currentUser } = useContext(AuthContext);
   const { data } = useContext(ChatContext);
@@ -45,6 +49,8 @@ const Input = () => {
         (error) => {
           console.error("Error during upload:", error);
           //setErr(true);
+          setError(true);
+
         },
         () => {
           try {
@@ -62,7 +68,9 @@ const Input = () => {
 
 
           } catch (error) {
-            console.error("Error during URL retrieval:", error);
+            //console.error("Error during URL retrieval:", error);
+            setError(true)
+            setProgress(0)
           }
         }
       );
@@ -95,6 +103,7 @@ const Input = () => {
     setImg(null);
     setVideo(null);
     setProgress(0)
+    setError(false)
   };
 
   const handleFileChange = (e) => {
@@ -116,12 +125,16 @@ const Input = () => {
 
 
   return (
+    <>
+    <div className="progress">
+      {progress > 0 && progress < 100 &&(
+          <LinearDeterminate  value={Math.round(progress)} />
+        )}
+      </div>
     <div className='input'>
       <input type="text" placeholder='Type something...' onKeyDown={handleKey} onChange={e => setText(e.target.value)} value={text} />
       <div className="send">
-      {(
-          <div className="progress">{progress.toFixed(2)}%</div>
-        )}
+     
         <input type="file" accept='image/*, video/*, audio/*' style={{ display: 'none' }} id="file"
           onChange={handleFileChange} />
         <label htmlFor='file'>
@@ -133,6 +146,10 @@ const Input = () => {
         <button onClick={handleSend}>Send</button>
       </div>
     </div>
+      {error &&
+        (<Alert className="" severity="error" sx={{ position: 'absolute', bottom: 16, right: 16 }}>An error occurred during upload. Please try again later.</Alert>)
+      }
+    </>
   );
 };
 
