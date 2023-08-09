@@ -11,6 +11,8 @@ import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 const Input = () => {
   const [text, setText] = useState("");
   const [img, setImg] = useState(null);
+  const [video, setVideo] = useState(null);
+  const [progress, setProgress] = useState(0);
 
   const { currentUser } = useContext(AuthContext);
   const { data } = useContext(ChatContext);
@@ -20,19 +22,28 @@ const Input = () => {
   };
 
   const handleSend = async () => {
+    if (!text && !img && !video) {
+      console.log(img)
+      return; // Don't proceed if both text and img are empty
+    }
 
-    if (img) {
+    if (img || video) {
 
-      const storageRef = ref(storage, uuid());
+      const storageRef = ref(storage, `${(img != null ? "img/" : "videos/") + uuid()}` );
 
-      const uploadTask = uploadBytesResumable(storageRef, img);
+      const uploadTask = uploadBytesResumable(storageRef, img != null ? img : video);
 
       uploadTask.on('state_changed',
         (snapshot) => {
-          // Handle upload progress if needed
+          console.log(snapshot)
+          const loading = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          setProgress(loading);
+          if(progress === 100){
+            setProgress(0)
+          }
         },
         (error) => {
-          //console.log("ERROR 1 : " + error);
+          console.error("Error during upload:", error);
           //setErr(true);
         },
         () => {
@@ -44,14 +55,14 @@ const Input = () => {
                   text,
                   senderId: currentUser.uid,
                   date: Timestamp.now(),
-                  img: downloadURL,
+                  [img ? "img" : "video"]: downloadURL
                 }),
               })
             });
 
 
           } catch (error) {
-
+            console.error("Error during URL retrieval:", error);
           }
         }
       );
@@ -82,19 +93,42 @@ const Input = () => {
 
     setText("");
     setImg(null);
+    setVideo(null);
+    setProgress(0)
   };
 
- 
+  const handleFileChange = (e) => {
+    if (e.target.files.length === 0) {
+      return;
+    }
+
+    const file = e.target.files[0];
+
+    if (file.type.includes('image')) {
+      setImg(file);
+      setVideo(null);
+    } else if (file.type.includes('video')) {
+      setVideo(file);
+      setImg(null);
+    }
+  };
+
+
 
   return (
     <div className='input'>
       <input type="text" placeholder='Type something...' onKeyDown={handleKey} onChange={e => setText(e.target.value)} value={text} />
       <div className="send">
-        <img src={Attach} alt="" />
-        <input type="file" style={{ display: 'none' }} id="file" onChange={e => setImg(e.target.files[0])} />
+      {(
+          <div className="progress">{progress.toFixed(2)}%</div>
+        )}
+        <input type="file" accept='image/*, video/*, audio/*' style={{ display: 'none' }} id="file"
+          onChange={handleFileChange} />
+        <label htmlFor='file'>
+          <img src={Attach} alt="" />
+        </label>
         <label htmlFor='file'>
           <img src={Img} alt="" />
-
         </label>
         <button onClick={handleSend}>Send</button>
       </div>

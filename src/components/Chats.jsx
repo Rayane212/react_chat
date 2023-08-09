@@ -24,6 +24,41 @@ const Chats = () => {
     const handleSelect = (u)=>{
         dispatch({type:"CHANGE_USER", payload: u})
     }
+
+    const formatElapsedTime = (timestamp) => {
+        if (timestamp === null) {
+            return ''; // Retourner une valeur par défaut ou une chaîne vide si le timestamp est null
+        }
+        timestamp = timestamp.toDate()
+        const now = new Date();
+        const elapsedTime = Math.floor((now - timestamp) / 1000); // Convert to seconds
+        
+        if (elapsedTime < 60) {
+            return `${elapsedTime} s ago`;
+        } else if (elapsedTime < 3600) {
+            const minutes = Math.floor(elapsedTime / 60);
+            return `${minutes} min ago`;
+        } else if (elapsedTime < 86400) {
+            const hours = Math.floor(elapsedTime / 3600);
+            return `${hours} h ago`;
+        } else if (elapsedTime < 604800){
+            const days = Math.floor(elapsedTime / 86400);
+            return `${days} day${days !== 1 ? 's' : ''} ago`;
+        }
+        else if (elapsedTime < 2419200){
+            const weeks = Math.floor(elapsedTime / 604800);
+            return `${weeks} week${weeks !== 1 ? 's' : ''} ago`;
+        }
+        else if (elapsedTime < 29030400){
+            const months = Math.floor(elapsedTime / 2419200);
+            return `${months} month${months !== 1 ? 's' : ''} ago`;
+        }
+        else {
+            const months = Math.floor(elapsedTime / 29030400);
+            return `${months} year${months !== 1 ? 's' : ''} ago`;
+        }
+    };
+
     return (
         <div className='chats'>
             {Object.entries(chats)?.sort((a,b)=>b[1].date - a[1].date).map((chat)=> (
@@ -32,6 +67,9 @@ const Chats = () => {
                 <div className="userChatInfo">
                     <span>{chat[1].userInfo.displayName}</span>
                     <p>{chat[1].lastMessage?.text}</p>
+                </div>
+                <div className="times">
+                    <p>{formatElapsedTime(chat[1].date)}</p>
                 </div>
             </div>
             ))}
