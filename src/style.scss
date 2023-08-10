@@ -1,5 +1,11 @@
 @mixin mobile {
-  @media screen and (max-width: 480px) {
+  @media screen and (max-width: 480px) and (orientation:portrait) {
+    @content;
+  }
+}
+
+@mixin mobile_landscape {
+  @media screen and (min-width: 600px) and (orientation : landscape) {
     @content;
   }
 }
@@ -142,10 +148,10 @@ body {
         color: #ddddf7;
         
 
-        .logoMenu{
+        .logoMsg{
           display: flex;
           gap: 5px;
-          .menu{
+          .msgIcon{
             display: none;
             cursor: pointer;
             @include tablet {
