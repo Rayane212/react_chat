@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { collection, query, where, getDocs, setDoc, doc, updateDoc, serverTimestamp, getDoc } from "firebase/firestore"
 import { db } from "../firebase"
 import { AuthContext } from './../context/AuthContext';
+import SearchIcon from '@mui/icons-material/Search';
 
 const Search = () => {
     const [username, setUsername] = useState("");
@@ -69,6 +70,7 @@ const Search = () => {
     };
     return (
         <div className='search'>
+            <SearchIcon className='searchIcon'/>
             <div className="searchForm">
                 <input type="text" placeholder='Find a user' onKeyDown={handleKey} onChange={e => setUsername(e.target.value)} value={username} />
             </div>
