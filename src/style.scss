@@ -34,11 +34,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  @include mobile(){
+
+  @include mobile() {
     overflow-y: hidden;
     overflow-x: hidden;
   }
-  
+
 
   .formWrapper {
     background-color: white;
@@ -134,7 +135,8 @@ body {
       flex: 1;
       background-color: #3e3c61;
       position: relative;
-      @include mobile(){
+
+      @include mobile() {
         max-width: 12%;
       }
 
@@ -146,16 +148,18 @@ body {
         padding: 10px;
         justify-content: space-between;
         color: #ddddf7;
-        
 
-        .logoMsg{
+
+        .logoMsg {
           display: flex;
           gap: 5px;
-          .msgIcon{
+
+          .msgIcon {
             display: none;
             cursor: pointer;
+
             @include tablet {
-              display:block;
+              display: block;
             }
 
           }
@@ -169,7 +173,7 @@ body {
             display: none;
           }
 
-          @include mobile(){
+          @include mobile() {
             display: none;
           }
         }
@@ -178,9 +182,10 @@ body {
           display: flex;
           gap: 10px;
 
-          span{
-            margin:auto;
-            @include mobile(){
+          span {
+            margin: auto;
+
+            @include mobile() {
               display: none;
             }
           }
@@ -192,7 +197,7 @@ body {
             border-radius: 50%;
             object-fit: cover;
 
-            @include mobile(){
+            @include mobile() {
               display: none;
             }
           }
@@ -206,32 +211,36 @@ body {
               bottom: 10px;
               left: 10px;
             }
-            &:hover{
-              opacity:0.5;
+
+            &:hover {
+              opacity: 0.5;
             }
           }
-          
+
         }
       }
 
       .search {
         border-bottom: 1px solid gray;
 
-        .searchIcon{
+        .searchIcon {
           display: none;
-          
+
         }
-        @include mobile(){
-          .searchIcon{
+
+        @include mobile() {
+          .searchIcon {
             display: block;
-            color:#ddddf7;
+            color: #ddddf7;
             padding: 5px;
             margin: 0 auto;
             cursor: pointer;
-          }:hover{
+          }
+
+          .searchIcon:hover {
             opacity: 0.5;
           }
-          }
+        }
 
         .searchForm {
           padding: 10px;
@@ -239,24 +248,40 @@ body {
           input {
             background-color: transparent;
             border: none;
-            color: white;
+            border-radius: 10px;
             outline: none;
 
             &::placeholder {
               color: lightgray;
             }
           }
-          @include mobile(){
+
+          @include mobile() {
             display: none;
+
+            &.mobile {
+              display: block;
+
+              input {
+                background-color: white;
+                border: 1px solid gray;
+                outline: none;
+                opacity: 1;
+              }
+
+              &::placeholder {
+                color: black;
+              }
+            }
           }
         }
-        
+
       }
 
       .userChat {
         padding: 10px;
         display: flex;
-        flex:1;
+        flex: 1;
         align-items: center;
         gap: 10px;
         color: white;
@@ -271,7 +296,8 @@ body {
           height: 50px;
           border-radius: 50%;
           object-fit: cover;
-          @include mobile(){
+
+          @include mobile() {
             width: 25px;
             height: 25px;
           }
@@ -288,21 +314,24 @@ body {
             color: lightgray;
             margin: auto;
           }
-          @include mobile(){
+
+          @include mobile() {
             display: none;
           }
 
         }
 
         .times {
-          flex:2;
+          flex: 2;
+
           p {
             font-size: 12px;
             font-weight: 200;
             color: lightgray;
             float: right;
           }
-          @include mobile(){
+
+          @include mobile() {
             display: none;
           }
 
@@ -314,7 +343,7 @@ body {
     .chat {
       flex: 2;
 
-      @include mobile(){
+      @include mobile() {
         width: 90%;
       }
 
@@ -362,7 +391,7 @@ body {
               object-fit: cover;
             }
 
-            span{
+            span {
               font-size: 10px;
             }
           }
@@ -380,7 +409,8 @@ body {
               max-width: max-content;
             }
 
-            img, video{
+            img,
+            video {
               width: 50%;
             }
           }
@@ -443,6 +473,21 @@ body {
             cursor: pointer;
           }
         }
+      }
+    }
+
+    .friends {
+      flex: 2;
+
+      .Info {
+        height: 50px;
+        background-color: #5d5b8d;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+        color: lightgray;
+
       }
     }
   }

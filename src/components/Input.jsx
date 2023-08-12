@@ -16,7 +16,7 @@ const Input = () => {
   const [img, setImg] = useState(null);
   const [video, setVideo] = useState(null);
   const [progress, setProgress] = useState(0);
-  const [error,setError] = useState(false);
+  const [error, setError] = useState(false);
   const [uploading, setUploading] = useState(false);
 
   const { currentUser } = useContext(AuthContext);
@@ -34,7 +34,7 @@ const Input = () => {
 
     if (img || video) {
 
-      const storageRef = ref(storage, `${(img != null ? "img/" : "videos/") + uuid()}` );
+      const storageRef = ref(storage, `${(img != null ? "img/" : "videos/") + uuid()}`);
 
       const uploadTask = uploadBytesResumable(storageRef, img != null ? img : video);
 
@@ -42,7 +42,7 @@ const Input = () => {
         (snapshot) => {
           const loading = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
           setProgress(loading);
-          if(progress === 100){
+          if (progress === 100) {
             setProgress(0)
           }
           setUploading(true)
@@ -128,27 +128,26 @@ const Input = () => {
 
   return (
     <>
-    <div className="progress">
-      {progress > 0 && progress < 100 &&(
-          <LinearDeterminate  value={Math.round(progress)} />
+      <div className="progress">
+        {progress > 0 && progress < 100 && (
+          <LinearDeterminate value={Math.round(progress)} />
         )}
       </div>
-    <div className='input'>
-      <input type="text" placeholder='Type something...' onKeyDown={handleKey} onChange={e => setText(e.target.value)} value={text} />
-      <div className="send">
-     
-        <input type="file" accept='image/*, video/*, audio/*' style={{ display: 'none' }} id="file"
-          onChange={handleFileChange} />
-        <label htmlFor='file'>
-          <img src={Attach} alt="" />
-        </label>
-        <label htmlFor='file'>
-          <img src={Img} alt="" />
-        </label>
-        {console.log(uploading)}
-        <button onClick={handleSend} disabled={uploading}>Send</button>
+      <div className='input'>
+        <input type="text" placeholder='Type something...' onKeyDown={handleKey} onChange={e => setText(e.target.value)} value={text} />
+        <div className="send">
+
+          <input type="file" accept='image/*, video/*, audio/*' style={{ display: 'none' }} id="file"
+            onChange={handleFileChange} />
+          <label htmlFor='file'>
+            <img src={Attach} alt="" />
+          </label>
+          <label htmlFor='file'>
+            <img src={Img} alt="" />
+          </label>
+          <button onClick={handleSend} disabled={uploading}>Send</button>
+        </div>
       </div>
-    </div>
       {error &&
         (<Alert className="" severity="error" sx={{ position: 'absolute', bottom: 16, right: 16 }}>An error occurred during upload. Please try again later.</Alert>)
       }
