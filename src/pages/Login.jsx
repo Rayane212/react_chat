@@ -36,8 +36,8 @@ const Login = () => {
                 <span className='logo'>React Chat</span>
                 <span className='title'>Login</span>
                 <form onSubmit={handleSubmit}>
-                    <input type="email" placeholder="email" name="" id="" required />
-                    <input type="password" placeholder="password" name="" id="" required />
+                    <input type="email" placeholder="email" name="email" id="email" autoComplete="username" required />
+                    <input type="password" placeholder="password" name="password" id="password" autoComplete="current-password" required />
                     <button>Sign in</button>
                     {err !== "" && <Alert className="" severity="error" >{err}</Alert>}
                 </form>

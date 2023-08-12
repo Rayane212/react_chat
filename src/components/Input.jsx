@@ -17,6 +17,7 @@ const Input = () => {
   const [video, setVideo] = useState(null);
   const [progress, setProgress] = useState(0);
   const [error,setError] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const { currentUser } = useContext(AuthContext);
   const { data } = useContext(ChatContext);
@@ -39,18 +40,17 @@ const Input = () => {
 
       uploadTask.on('state_changed',
         (snapshot) => {
-          console.log(snapshot)
           const loading = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
           setProgress(loading);
           if(progress === 100){
             setProgress(0)
           }
+          setUploading(true)
         },
         (error) => {
           console.error("Error during upload:", error);
-          //setErr(true);
           setError(true);
-
+          setUploading(false)
         },
         () => {
           try {
@@ -71,6 +71,7 @@ const Input = () => {
             //console.error("Error during URL retrieval:", error);
             setError(true)
             setProgress(0)
+            setUploading(false)
           }
         }
       );
@@ -104,6 +105,7 @@ const Input = () => {
     setVideo(null);
     setProgress(0)
     setError(false)
+    setUploading(false)
   };
 
   const handleFileChange = (e) => {
@@ -143,7 +145,8 @@ const Input = () => {
         <label htmlFor='file'>
           <img src={Img} alt="" />
         </label>
-        <button onClick={handleSend}>Send</button>
+        {console.log(uploading)}
+        <button onClick={handleSend} disabled={uploading}>Send</button>
       </div>
     </div>
       {error &&
