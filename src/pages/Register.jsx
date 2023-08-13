@@ -76,8 +76,8 @@ const Register = () => {
             <span>Add an Avatar</span>
           </label>
           <button>Sign up</button>
-          {loading && <Alert severity="info">Uploading and compressing the image, please wait...</Alert>}
-          {err && <Alert severity="error">{err}</Alert>}
+          {loading && <Alert severity="info" sx={{ width: "250px" }}>Uploading and compressing the image, please wait...</Alert>}
+          {err && <Alert severity="error" sx={{ width: "250px" }}>{err}</Alert>}
 
         </form>
         <p>You already have an account? <Link to="/login">Login</Link> </p>

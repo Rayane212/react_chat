@@ -11,7 +11,7 @@ const Home = () => {
     <div className='home'>
       <div className='container'>
         <Sidebar />
-        {data.chatId !== 'null' ? <Chat /> : <Friends />}
+        {data.displayFriends ? <Friends /> : <Chat />}
       </div>
     </div>
   )

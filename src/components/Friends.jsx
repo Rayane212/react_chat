@@ -1,13 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { collection, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
-import { Card, CardContent, CardHeader, Avatar, Typography } from '@mui/material';
+import { Card, CardHeader, Avatar } from '@mui/material';
 import { ChatContext } from '../context/ChatContext';
 import { AuthContext } from '../context/AuthContext';
 
 const Friends = () => {
     const [users, setUsers] = useState([]);
-    const [user, setUser] = useState()
     const { dispatch } = useContext(ChatContext)
     const { currentUser } = useContext(AuthContext)
 
@@ -15,9 +14,7 @@ const Friends = () => {
 
 
     const handleSelect = async (u) => {
-        setUser(u);
-        console.log(user)
-        const conbinedId = currentUser.uid > user.uid ? currentUser.uid + user.uid : user.uid + currentUser.uid;
+        const conbinedId = currentUser.uid > u.uid ? currentUser.uid + u.uid : u.uid + currentUser.uid;
 
         try {
             const res = await getDoc(doc(db, "chats", conbinedId))
@@ -29,14 +26,14 @@ const Friends = () => {
                 // Create user chats
                 await updateDoc(doc(db, "userChats", currentUser.uid), {
                     [conbinedId + ".userInfo"]: {
-                        uid: user.uid,
-                        displayName: user.displayName,
-                        photoURL: user.photoURL
+                        uid: u.uid,
+                        displayName: u.displayName,
+                        photoURL: u.photoURL
                     },
                     [conbinedId + ".date"]: serverTimestamp()
                 })
 
-                await updateDoc(doc(db, "userChats", user.uid), {
+                await updateDoc(doc(db, "userChats", u.uid), {
                     [conbinedId + ".userInfo"]: {
                         uid: currentUser.uid,
                         displayName: currentUser.displayName,
@@ -80,8 +77,9 @@ const Friends = () => {
                         < Card key={user.uid} className='friendCard' sx={{ cursor: "pointer" }} onClick={() => handleSelect(user)} >
                             <CardHeader
                                 avatar={<Avatar src={user.photoURL} alt={user.displayName} />}
-                                title={user.displayName}
+                                title={currentUser.uid === user.uid ? user.displayName + " (You)" : user.displayName}
                             />
+
                         </Card>
                     ))}
                 </div>
