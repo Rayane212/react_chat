@@ -5,7 +5,6 @@ import { AuthContext } from '../context/AuthContext';
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import { ChatContext } from '../context/ChatContext';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 const Navbar = () => {
     const { currentUser } = useContext(AuthContext);
@@ -24,13 +23,7 @@ const Navbar = () => {
             </div>
             {console.log(currentUser.photoURL)}
             <div className="user">
-                {
-                    currentUser.photoURL !== undefined ?
-                        <img src={currentUser.photoURL} alt="" /> :
-                        <AccountCircleIcon />
-
-                }
-
+                <img src={currentUser.photoURL} alt="" />
                 <span>{currentUser.displayName}</span>
                 <PowerSettingsNewIcon className='logout' onClick={() => signOut(auth)} />
             </div>

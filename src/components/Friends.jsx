@@ -1,16 +1,16 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { collection, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
-import { Card, CardHeader, Avatar } from '@mui/material';
+import { Card, CardHeader, Avatar, CircularProgress, Backdrop } from '@mui/material';
 import { ChatContext } from '../context/ChatContext';
 import { AuthContext } from '../context/AuthContext';
 
 const Friends = () => {
     const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(false);
     const { dispatch } = useContext(ChatContext)
     const { currentUser } = useContext(AuthContext)
 
-    //rajouter le chat dans la sidebar
 
 
     const handleSelect = async (u) => {
@@ -55,9 +55,16 @@ const Friends = () => {
 
     useEffect(() => {
         const getUsers = async () => {
-            const querySnapshot = await getDocs(collection(db, "users"));
-            const usersData = querySnapshot.docs.map(doc => doc.data());
-            setUsers(usersData);
+            setLoading(true); // Mettre à jour loading à true au début de la requête
+            try {
+                const querySnapshot = await getDocs(collection(db, "users"));
+                const usersData = querySnapshot.docs.map(doc => doc.data());
+                setUsers(usersData);
+            } catch (error) {
+                console.log(error);
+            } finally {
+                setLoading(false); // Mettre à jour loading à false à la fin de la requête
+            }
         };
         getUsers();
     }, []);
@@ -67,25 +74,36 @@ const Friends = () => {
             <div className='Info'>
                 <span>Let's go to chat</span>
             </div>
-            {users.length === 0 ? (
-                <div className='friendsInfo'>
-                    <span>No users available</span>
-                </div>
-            ) : (
-                <div className='friendsList'>
-                    {users.map(user => (
-                        < Card key={user.uid} className='friendCard' sx={{ cursor: "pointer" }} onClick={() => handleSelect(user)} >
-                            <CardHeader
-                                avatar={<Avatar src={user.photoURL} alt={user.displayName} />}
-                                title={currentUser.uid === user.uid ? user.displayName + " (You)" : user.displayName}
-                            />
+            {loading && (
+                <Backdrop
+                    sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                    open={loading}
+                >
+                    <CircularProgress color="inherit" />
+                </Backdrop>
+            )}
 
-                        </Card>
-                    ))}
+            {!loading && (
+                <div className='friendsList'>
+                    {users.length === 0 ? (
+                        <div className='friendsInfo'>
+                            <span>No users available</span>
+                        </div>
+                    ) : (
+                        <div>
+                            {users.map(user => (
+                                <Card key={user.uid} className='friendCard' sx={{ cursor: "pointer" }} onClick={() => handleSelect(user)}>
+                                    <CardHeader
+                                        avatar={<Avatar src={user.photoURL} alt={user.displayName} />}
+                                        title={currentUser.uid === user.uid ? user.displayName + " (You)" : user.displayName}
+                                    />
+                                </Card>
+                            ))}
+                        </div>
+                    )}
                 </div>
-            )
-            }
-        </div >
+            )}
+        </div>
     );
 };
 
