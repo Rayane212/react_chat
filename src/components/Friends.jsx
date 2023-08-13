@@ -55,7 +55,7 @@ const Friends = () => {
 
     useEffect(() => {
         const getUsers = async () => {
-            setLoading(true); // Mettre à jour loading à true au début de la requête
+            setLoading(true);
             try {
                 const querySnapshot = await getDocs(collection(db, "users"));
                 const usersData = querySnapshot.docs.map(doc => doc.data());
@@ -63,7 +63,7 @@ const Friends = () => {
             } catch (error) {
                 console.log(error);
             } finally {
-                setLoading(false); // Mettre à jour loading à false à la fin de la requête
+                setLoading(false);
             }
         };
         getUsers();

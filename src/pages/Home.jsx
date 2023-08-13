@@ -6,7 +6,6 @@ import Friends from '../components/Friends';
 
 const Home = () => {
   const { data } = useContext(ChatContext)
-  // faire un useEffect pour lorsque y'a aucun chat de selectionner que sa parte sur le composant Friends
   return (
     <div className='home'>
       <div className='container'>

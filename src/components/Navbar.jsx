@@ -8,7 +8,7 @@ import { ChatContext } from '../context/ChatContext';
 
 const Navbar = () => {
     const { currentUser } = useContext(AuthContext);
-    const { dispatch } = useContext(ChatContext); // Utilisez dispatch depuis le contexte pour mettre à jour l'état
+    const { dispatch } = useContext(ChatContext);
 
     const handleFriends = () => {
         dispatch({ type: "DISPLAY_FRIENDS" });
