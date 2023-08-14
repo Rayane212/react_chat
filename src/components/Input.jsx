@@ -61,7 +61,8 @@ const Input = () => {
                   text,
                   senderId: currentUser.uid,
                   date: Timestamp.now(),
-                  [img ? "img" : "video"]: downloadURL
+                  [img ? "img" : "video"]: downloadURL,
+                  unread: true
                 }),
               })
             });
@@ -83,6 +84,7 @@ const Input = () => {
           text,
           senderId: currentUser.uid,
           date: Timestamp.now(),
+          unread: true,
         })
       })
     }
