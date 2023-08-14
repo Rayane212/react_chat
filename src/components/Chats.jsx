@@ -1,9 +1,9 @@
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import React, { useContext, useEffect, useState } from 'react';
 import { db } from '../firebase';
 import { AuthContext } from '../context/AuthContext';
 import { ChatContext } from '../context/ChatContext';
-import { Avatar } from '@mui/material';
+import { Avatar, Badge, Tooltip } from '@mui/material';
 
 const Chats = () => {
     const [chats, setChats] = useState([]);
@@ -22,9 +22,16 @@ const Chats = () => {
         currentUser.uid && getChats();
     }, [currentUser.uid]);
 
-    const handleSelect = (u) => {
-        dispatch({ type: "CHANGE_USER", payload: u })
-    }
+    const handleSelect = async (chatId, u) => {
+        if (chats[chatId]?.lastMessage?.unread) {
+            await updateDoc(doc(db, 'userChats', currentUser.uid), {
+                [chatId + '.lastMessage.unread']: false,
+            });
+        }
+
+        dispatch({ type: 'CHANGE_USER', payload: u });
+    };
+
 
     const formatElapsedTime = (timestamp) => {
         if (timestamp === null) {
@@ -65,18 +72,40 @@ const Chats = () => {
 
     return (
         <div className='chats'>
-            {Object.entries(chats)?.sort((a, b) => b[1].date - a[1].date).map((chat) => (
-                <div className="userChat" key={chat[0]} onClick={() => handleSelect(chat[1].userInfo)}>
-                    <Avatar src={chat[1].userInfo.photoURL} alt={chat[1].userInfo.displayName} />
-                    <div className="userChatInfo">
-                        <span>{chat[1].userInfo.displayName}</span>
-                        <p>{chat[1].lastMessage?.text}</p>
-                    </div>
-                    <div className="times">
-                        <p>{formatElapsedTime(chat[1].date)}</p>
-                    </div>
-                </div>
-            ))}
+            {Object.entries(chats)
+                ?.sort((a, b) => b[1].date - a[1].date)
+                .map(([chatId, chat]) => (
+                    <Tooltip title={chat.userInfo.displayName} arrow>
+
+                        <div
+                            className={`userChat ${chat.lastMessage?.unread ? 'new-message' : ''}`}
+                            key={chatId}
+                            onClick={() => handleSelect(chatId, chat.userInfo)}
+                        >
+                            <Badge
+                                badgeContent=""
+                                color="error"
+                                overlap="circular"
+                                variant="dot"
+                                invisible={!chat.lastMessage?.unread}
+                            >
+                                <Avatar
+                                    className='img'
+                                    src={chat.userInfo.photoURL}
+                                    alt={chat.userInfo.displayName}
+                                />
+                            </Badge>
+
+                            <div className='userChatInfo'>
+                                <span>{chat.userInfo.displayName}</span>
+                                <p>{chat.lastMessage?.text}</p>
+                            </div>
+                            <div className='times'>
+                                <p>{formatElapsedTime(chat.date)}</p>
+                            </div>
+                        </div>
+                    </Tooltip>
+                ))}
         </div>
     );
 };

@@ -28,8 +28,7 @@ const Input = () => {
 
   const handleSend = async () => {
     if (!text && !img && !video) {
-      console.log(img)
-      return; // Don't proceed if both text and img are empty
+      return; 
     }
 
     if (img || video) {
@@ -62,14 +61,12 @@ const Input = () => {
                   senderId: currentUser.uid,
                   date: Timestamp.now(),
                   [img ? "img" : "video"]: downloadURL,
-                  unread: true
                 }),
               })
             });
 
 
           } catch (error) {
-            //console.error("Error during URL retrieval:", error);
             setError(true)
             setProgress(0)
             setUploading(false)
@@ -84,7 +81,6 @@ const Input = () => {
           text,
           senderId: currentUser.uid,
           date: Timestamp.now(),
-          unread: true,
         })
       })
     }
@@ -92,12 +88,14 @@ const Input = () => {
     await updateDoc(doc(db, "userChats", currentUser.uid), {
       [data.chatId + ".lastMessage"]: {
         text,
+        unread: false,
       },
       [data.chatId + ".date"]: serverTimestamp(),
     });
     await updateDoc(doc(db, "userChats", data.user.uid), {
       [data.chatId + ".lastMessage"]: {
         text,
+        unread: true
       },
       [data.chatId + ".date"]: serverTimestamp(),
     });

@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { collection, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
-import { Card, CardHeader, Avatar, CircularProgress, Backdrop } from '@mui/material';
+import { Card, CardHeader, Avatar, CircularProgress, Backdrop, Tooltip } from '@mui/material';
 import { ChatContext } from '../context/ChatContext';
 import { AuthContext } from '../context/AuthContext';
 
@@ -92,12 +92,14 @@ const Friends = () => {
                     ) : (
                         <div>
                             {users.map(user => (
-                                <Card key={user.uid} className='friendCard' sx={{ cursor: "pointer" }} onClick={() => handleSelect(user)}>
-                                    <CardHeader
-                                        avatar={<Avatar src={user.photoURL} alt={user.displayName} />}
-                                        title={currentUser.uid === user.uid ? user.displayName + " (You)" : user.displayName}
-                                    />
-                                </Card>
+                                <Tooltip title={currentUser.uid === user.uid ? user.displayName + " (You)" : user.displayName} arrow>
+                                    <Card key={user.uid} className='friendCard' sx={{ cursor: "pointer" }} onClick={() => handleSelect(user)}>
+                                        <CardHeader
+                                            avatar={<Avatar src={user.photoURL} alt={user.displayName} />}
+                                            title={currentUser.uid === user.uid ? user.displayName + " (You)" : user.displayName}
+                                        />
+                                    </Card>
+                                </Tooltip>
                             ))}
                         </div>
                     )}
