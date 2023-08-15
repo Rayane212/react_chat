@@ -91,7 +91,11 @@ const Friends = () => {
                         </div>
                     ) : (
                         <div>
-                            {users.map(user => (
+                            {users?.sort((a, b) => {
+                                if (a.uid === currentUser.uid) return -1;
+                                if (b.uid === currentUser.uid) return 1;
+                                return a.displayName.localeCompare(b.displayName);
+                            }).map(user => (
                                 <Tooltip title={currentUser.uid === user.uid ? user.displayName + " (You)" : user.displayName} key={user.uid} arrow>
                                     <Card className='friendCard' sx={{ cursor: "pointer" }} onClick={() => handleSelect(user)}>
                                         <CardHeader

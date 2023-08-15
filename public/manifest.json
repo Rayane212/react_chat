@@ -1,12 +1,13 @@
 {
   "name": "React Chat",
-  "short_name": "Chat",
+  "short_name": "Threads",
   "description": "A chat application built with React",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
   "orientation": "portrait",
+  "author": "Rayane Hadi",
   "icons": [
     {
       "src": "logo-removebg-preview.png",
