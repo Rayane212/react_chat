@@ -2,7 +2,7 @@ import React, { useRef, useImperativeHandle, useState } from 'react';
 
 const AudioPlayer = React.forwardRef(({ src }, ref) => {
     const audioRef = useRef(null);
-    const [isLoaded, setIsLoaded] = useState(true);
+    const [isLoaded, setIsLoaded] = useState(false);
 
     useImperativeHandle(ref, () => ({
         play: () => {
