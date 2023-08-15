@@ -11,24 +11,13 @@ function App() {
 
   useEffect(() => {
     const enterFullscreen = () => {
-      const element = document.documentElement;
-
-      if (element.requestFullscreen) {
-        element.requestFullscreen();
-      } else if (element.mozRequestFullScreen) {
-        element.mozRequestFullScreen();
-      } else if (element.webkitRequestFullscreen) {
-        element.webkitRequestFullscreen();
-      } else if (element.msRequestFullscreen) {
-        element.msRequestFullscreen();
+      if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+        const element = document.documentElement;
+        if (element.webkitRequestFullscreen) {
+          element.webkitRequestFullscreen();
+        }
       }
     };
-
-    if (window.screen.orientation) {
-      window.screen.orientation.lock('portrait').catch(() => {
-        console.warn("L'orientation en mode portrait n'a pas pu être verrouillée.");
-      });
-    }
 
     enterFullscreen();
   }, []);

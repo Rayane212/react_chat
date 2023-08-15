@@ -245,9 +245,11 @@ body {
 
           input {
             background-color: transparent;
+            color: white;
             border: none;
             border-radius: 10px;
             outline: none;
+            width: 100%;
 
             &::placeholder {
               color: lightgray;
@@ -265,10 +267,11 @@ body {
                 border: 1px solid gray;
                 outline: none;
                 opacity: 1;
-              }
+                width: 100%;
 
-              &::placeholder {
-                color: black;
+                &::placeholder {
+                  color: black;
+                }
               }
             }
           }

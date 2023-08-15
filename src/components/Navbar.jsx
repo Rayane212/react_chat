@@ -29,6 +29,12 @@ const Navbar = () => {
                     });
 
                     setUnreadCount(count);
+
+                    if (count > 0) {
+                        document.title = `● Nouveaux messages - React Chat`;
+                    } else {
+                        document.title = "React Chat";
+                    }
                 }
             });
 
@@ -51,19 +57,21 @@ const Navbar = () => {
         <div className='navbar'>
             <div className='logoMsg'>
                 <Tooltip title="see all users" arrow>
-                    <Badge badgeContent={unreadCount} color="error" overlap="circular" size="smaill" anchorOrigin={{
-                        vertical: 'top',
-                        horizontal: 'right',
-                    }}  >
-                        <Avatar sx={{ backgroundColor: "transparent" }}>
-                            <QuestionAnswerIcon className="msgIcon" onClick={() => handleFriends()} />
-                        </Avatar>
-                    </Badge>
-                    <span className='logo' onClick={() => handleFriends()}>React Chat</span>
+                    <>
+                        <Badge badgeContent={unreadCount} color="error" overlap="circular" size="smaill" anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right',
+                        }}  >
+                            <Avatar sx={{ backgroundColor: "transparent" }}>
+                                <QuestionAnswerIcon className="msgIcon" onClick={() => handleFriends()} />
+                            </Avatar>
+                        </Badge>
+                        <span className='logo' onClick={() => handleFriends()}>React Chat</span>
+                    </>
+
                 </Tooltip>
 
             </div>
-            {console.log(currentUser.photoURL)}
             <div className="user">
                 <Avatar className="img" src={currentUser.photoURL} alt={currentUser.displayName} />
                 <span>{currentUser.displayName}</span>

@@ -75,26 +75,27 @@ const Chats = () => {
             {Object.entries(chats)
                 ?.sort((a, b) => b[1].date - a[1].date)
                 .map(([chatId, chat]) => (
-                    <Tooltip title={chat.userInfo.displayName} arrow>
-
+                    <Tooltip title={chat.userInfo.displayName} key={chatId} arrow>
                         <div
                             className={`userChat ${chat.lastMessage?.unread ? 'new-message' : ''}`}
-                            key={chatId}
                             onClick={() => handleSelect(chatId, chat.userInfo)}
                         >
-                            <Badge
-                                badgeContent=""
-                                color="error"
-                                overlap="circular"
-                                variant="dot"
-                                invisible={!chat.lastMessage?.unread}
-                            >
-                                <Avatar
-                                    className='img'
-                                    src={chat.userInfo.photoURL}
-                                    alt={chat.userInfo.displayName}
-                                />
-                            </Badge>
+                            <>
+                                <Badge
+                                    badgeContent=""
+                                    color="error"
+                                    overlap="circular"
+                                    variant="dot"
+                                    invisible={!chat.lastMessage?.unread}
+                                >
+                                    <Avatar
+                                        className='img'
+                                        src={chat.userInfo.photoURL}
+                                        alt={chat.userInfo.displayName}
+                                    />
+                                </Badge>
+                            </>
+
 
                             <div className='userChatInfo'>
                                 <span>{chat.userInfo.displayName}</span>

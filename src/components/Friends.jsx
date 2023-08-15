@@ -92,8 +92,8 @@ const Friends = () => {
                     ) : (
                         <div>
                             {users.map(user => (
-                                <Tooltip title={currentUser.uid === user.uid ? user.displayName + " (You)" : user.displayName} arrow>
-                                    <Card key={user.uid} className='friendCard' sx={{ cursor: "pointer" }} onClick={() => handleSelect(user)}>
+                                <Tooltip title={currentUser.uid === user.uid ? user.displayName + " (You)" : user.displayName} key={user.uid} arrow>
+                                    <Card className='friendCard' sx={{ cursor: "pointer" }} onClick={() => handleSelect(user)}>
                                         <CardHeader
                                             avatar={<Avatar src={user.photoURL} alt={user.displayName} />}
                                             title={currentUser.uid === user.uid ? user.displayName + " (You)" : user.displayName}

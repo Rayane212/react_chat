@@ -3,6 +3,7 @@ import { collection, query, where, getDocs, setDoc, doc, updateDoc, serverTimest
 import { db } from "../firebase"
 import { AuthContext } from './../context/AuthContext';
 import SearchIcon from '@mui/icons-material/Search';
+import { Avatar } from '@mui/material';
 
 const Search = () => {
     const [username, setUsername] = useState("");
@@ -106,25 +107,21 @@ const Search = () => {
     return (
         <div className='search'>
             <SearchIcon className='searchIcon' onClick={handleSearchIconClick} />
-            {searchVisible && (
-                <div className="searchForm mobile" ref={searchInputRef}>
-                    <input type="text" placeholder='Find a user' onKeyDown={handleKey} onChange={e => setUsername(e.target.value)} value={username} />
-                </div>
-            )}
 
-            <div className="searchForm" ref={searchInputRef}>
+            <div className={`searchForm ${searchVisible ? 'mobile' : ''}`} ref={searchInputRef}>
                 <input type="text" placeholder='Find a user' onKeyDown={handleKey} onChange={e => setUsername(e.target.value)} value={username} />
             </div>
-            {err &&
-                (<span>User not found</span>)
-            }
 
-            {user && <div className="userChat" onClick={(e) => handleSelect()}>
-                <img src={user.photoURL} alt="" />
-                <div className="userChatInfo">
-                    <span>{user.displayName}</span>
+            {err && <span>User not found</span>}
+
+            {user && (
+                <div className="userChat" onClick={handleSelect}>
+                    <Avatar src={user.photoURL} alt={user.displayName} />
+                    <div className="userChatInfo">
+                        <span>{user.displayName}</span>
+                    </div>
                 </div>
-            </div>}
+            )}
         </div>
     );
 };
