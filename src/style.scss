@@ -1,5 +1,5 @@
-@mixin mobile {
-  @media screen and (max-width: 480px) and (orientation:portrait) {
+@mixin mobile_portrait {
+  @media screen and (max-width: 480px)  {
     @content;
   }
 }
@@ -22,6 +22,10 @@
   }
 }
 
+$blue-shades: #00132D, #00193b, #001e45, #002657, #002d67, #00377e, #17498a, #2c5a95, #3f699f, #5077a8;
+$text-color: #fff;
+
+
 html,
 body {
   max-width: 100%;
@@ -29,20 +33,25 @@ body {
 }
 
 .formContainer {
-  background-color: #a7bcff;
+  background-color: nth($blue-shades, 2);
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  @include mobile() {
+  @include mobile_portrait(); @include mobile_landscape()
+  {
+    overflow-y: hidden;
+    overflow-x: hidden;
+  }
+  @include mobile_landscape(){
     overflow-y: hidden;
     overflow-x: hidden;
   }
 
 
+
   .formWrapper {
-    background-color: white;
+    background-color: nth($blue-shades, 1);
     padding: 20px 60px;
     border-radius: 10px;
     display: flex;
@@ -51,14 +60,14 @@ body {
     align-items: center;
 
     .logo {
-      color: #5d5b8d;
+      color: $text-color;
       font-weight: bold;
       font-size: 24px;
 
     }
 
     .title {
-      color: #5d5b8d;
+      color: $text-color;
       font-size: 12px;
     }
 
@@ -70,8 +79,9 @@ body {
       input {
         padding: 15px;
         border: none;
+        border-radius: 10px ;
         width: 250px;
-        border-bottom: 1px solid #a7bcff;
+        border-bottom: 1px solid white;
 
         &::placeholder {
           color: rgb(175, 175, 175);
@@ -79,7 +89,8 @@ body {
       }
 
       button {
-        background-color: #7b96ec;
+        background-color: nth($blue-shades, 4);
+        border-radius: 10px ;
         color: white;
         padding: 10px;
         font-weight: bold;
@@ -91,7 +102,7 @@ body {
         display: flex;
         align-items: center;
         gap: 10px;
-        color: #8da4f1;
+        color: white;
         font-size: 12px;
         cursor: pointer;
 
@@ -102,7 +113,7 @@ body {
     }
 
     p {
-      color: #5d5b8d;
+      color: $text-color;
       font-size: 12px;
       margin-top: 10px;
     }
@@ -110,7 +121,7 @@ body {
 }
 
 .home {
-  background-color: #a7bcff;
+  background-color: nth($blue-shades, 2);
   height: calc(100vh - 1px);
   display: flex;
   flex-direction: column;
@@ -125,27 +136,36 @@ body {
     display: flex;
     overflow: hidden;
 
-    @include mobile() {
+    @include mobile_portrait() {
+      width: 100%;
+      height: 100%;
+      border-radius: 0%;
+      border: none;
+    }
+    @include mobile_landscape(){
       width: 100%;
       height: 100%;
       border-radius: 0%;
       border: none;
     }
 
+
     .sidebar {
       flex: 1;
-      background-color: #3e3c61;
+      background-color: nth($blue-shades, 3);
       position: relative;
       overflow: scroll;
 
-      @include mobile() {
+      @include mobile_portrait() {
         max-width: 15%;
+      }
+      @include mobile_landscape(){
       }
 
       .navbar {
         display: flex;
         align-items: center;
-        background-color: #2f2d52;
+        background-color: nth($blue-shades, 4);
         height: 50px;
         padding: 10px;
         justify-content: space-between;
@@ -154,6 +174,7 @@ body {
 
         .logoMsg {
           display: flex;
+          margin: 0 auto;
           gap: 5px;
 
           .msgIcon {
@@ -174,42 +195,50 @@ body {
             display: none;
           }
 
-          @include mobile() {
+          @include mobile_portrait() {
             display: none;
+          }
+          @include mobile_landscape(){
+
           }
         }
 
         .user {
           display: flex;
           gap: 10px;
+          @include mobile_portrait() {
+            display: none;
+          }
+          @include mobile_landscape(){
+            display: none;
+          }
 
           span {
             margin: auto;
 
-            @include mobile() {
-              display: none;
-            }
           }
 
           .img {
             object-fit: cover;
 
-            @include mobile() {
+            @include mobile_portrait() {
               display: none;
             }
           }
 
           .logout {
-            color: #ddddf7;
+            color: $text-color;
             margin: auto;
 
             cursor: pointer;
 
-            @include mobile() {
+            @include mobile_portrait() {              
+              display: block;
               position: absolute;
               bottom: 10px;
               left: 18px;
             }
+            
 
             &:hover {
               opacity: 0.5;
@@ -217,17 +246,20 @@ body {
           }
 
         }
+        
+
+       
       }
 
       .search {
         border-bottom: 1px solid gray;
-
+        background-color: white;
         .searchIcon {
           display: none;
 
         }
 
-        @include mobile() {
+        @include mobile_portrait() {
           .searchIcon {
             display: block;
             color: #ddddf7;
@@ -240,38 +272,41 @@ body {
             opacity: 0.5;
           }
         }
-
+       
+        
         .searchForm {
           padding: 10px;
-
-          input {
-            background-color: transparent;
+          
+         ;
+          .input {
+            background-color: white;
             color: white;
-            border: none;
-            border-radius: 10px;
-            outline: none;
             width: 100%;
+            border: 1px solid ;
+            border-bottom: 0px;
+
 
             &::placeholder {
               color: lightgray;
             }
+           
           }
 
-          @include mobile() {
+          @include mobile_portrait() {
             display: none;
 
             &.mobile {
               display: block;
 
-              input {
+              .input {
                 background-color: white;
-                border: 1px solid gray;
+                border: 1px solid white;
                 outline: none;
                 opacity: 1;
                 width: 100%;
 
                 &::placeholder {
-                  color: black;
+                  color: $text-color;
                 }
               }
             }
@@ -287,10 +322,11 @@ body {
         align-items: center;
         gap: 10px;
         color: white;
+        border-bottom: 1px solid nth($blue-shades,1);
         cursor: pointer;
 
         &:hover {
-          background-color: #2f2d52;
+          background-color: nth($blue-shades, 4);
         }
 
         img {
@@ -299,9 +335,8 @@ body {
 
         }
 
-        @include mobile() {
-          margin: 10px 9px 10px;
-          padding: 0px;
+        @include mobile_portrait() {
+          justify-content: center;
         }
 
         .userChatInfo {
@@ -316,7 +351,7 @@ body {
             margin: auto;
           }
 
-          @include mobile() {
+          @include mobile_portrait() {
             display: none;
           }
 
@@ -332,18 +367,45 @@ body {
             float: right;
           }
 
-          @include mobile() {
+          @include mobile_portrait() {
             display: none;
           }
 
         }
 
         &.new-message {
-          background-color: #8e89e3;
+          background-color: nth($blue-shades, 10);
           border: 1px solid bold black;
 
         }
       }
+
+      .logoutIcon{
+        display: none;
+        color: $text-color;
+        justify-content: center;
+        margin: 0 auto;
+        cursor: pointer;
+
+        @include mobile_portrait() { 
+          display: block;             
+          position: absolute;
+          margin-left: auto;
+          margin-right: auto;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          text-align: center;
+        }
+
+        &:hover {
+          opacity: 0.5;
+        }
+       
+        
+      }
+
+
 
 
     }
@@ -355,13 +417,16 @@ body {
     .chat {
       flex: 2;
 
-      @include mobile() {
+      @include mobile_portrait() {
         width: 90%;
+      }
+      @include mobile_landscape(){
+        
       }
 
       .chatInfo {
         height: 50px;
-        background-color: #5d5b8d;
+        background-color: nth($blue-shades, 5);
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -380,7 +445,7 @@ body {
       }
 
       .messages {
-        background-color: #ddddf7;
+        background-color: nth($blue-shades, 2);
         padding: 10px;
         height: calc(100% - 160px);
         overflow: scroll;
@@ -434,7 +499,7 @@ body {
               align-items: flex-end;
 
               p {
-                background-color: #8da4f1;
+                background-color: nth($blue-shades, 10);
                 color: white;
                 border-radius: 10px 0px 10px 10px;
               }
@@ -481,7 +546,8 @@ body {
             border: none;
             padding: 10px 15px;
             color: white;
-            background-color: #8da4f1;
+            background-color: nth($blue-shades, 4);
+            border-radius: 15%;
             cursor: pointer;
           }
         }
@@ -494,7 +560,7 @@ body {
 
       .Info {
         height: 50px;
-        background-color: #5d5b8d;
+        background-color: nth($blue-shades, 5);
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -505,10 +571,18 @@ body {
 
       .friendsList {
         padding: 15px;
+        display: flex;
+        justify-content: center;
+        margin: 0 auto;
+     
 
 
         .friendCard {
-          margin: 15px;
+          margin-top: 15px;
+          border: 1px solid white;
+          color: $text-color;
+          background-color: #00193b;
+          width: 100%!important;
         }
       }
 

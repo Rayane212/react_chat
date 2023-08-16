@@ -3,7 +3,7 @@ import { collection, query, where, getDocs, setDoc, doc, updateDoc, serverTimest
 import { db } from "../firebase"
 import { AuthContext } from './../context/AuthContext';
 import SearchIcon from '@mui/icons-material/Search';
-import { Avatar } from '@mui/material';
+import { Avatar, TextField } from '@mui/material';
 
 const Search = () => {
     const [username, setUsername] = useState("");
@@ -109,7 +109,8 @@ const Search = () => {
             <SearchIcon className='searchIcon' onClick={handleSearchIconClick} />
 
             <div className={`searchForm ${searchVisible ? 'mobile' : ''}`} ref={searchInputRef}>
-                <input type="text" placeholder='Find a user' onKeyDown={handleKey} onChange={e => setUsername(e.target.value)} value={username} />
+                <TextField className="input" id="outlined-search" label="Find a user" type="search"   onKeyDown={handleKey} onChange={e => setUsername(e.target.value)} value={username} />
+                {/* <input type="text" placeholder='Find a user' onKeyDown={handleKey} onChange={e => setUsername(e.target.value)} value={username} /> */}
             </div>
 
             {err && <span>User not found</span>}

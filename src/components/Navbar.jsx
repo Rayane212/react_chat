@@ -79,6 +79,8 @@ const Navbar = () => {
                     <PowerSettingsNewIcon className='logout' onClick={() => signOut(auth)} />
                 </Tooltip>
             </div>
+            
+            
         </div>
     );
 };

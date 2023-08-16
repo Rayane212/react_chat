@@ -1,16 +1,23 @@
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
-import React, { useContext, useEffect, useState } from 'react';
-import { db } from '../firebase';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { auth, db } from '../firebase';
 import { AuthContext } from '../context/AuthContext';
 import { ChatContext } from '../context/ChatContext';
 import { Avatar, Badge, Tooltip } from '@mui/material';
+import { signOut } from 'firebase/auth';
+import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 
 const Chats = () => {
     const [chats, setChats] = useState([]);
     const { currentUser } = useContext(AuthContext)
     const { dispatch } = useContext(ChatContext)
-    const newMessage = new Audio("https://firebasestorage.googleapis.com/v0/b/react-chat-6ddfc.appspot.com/o/audio%2FNewMessage.mp3?alt=media&token=3a5bbd37-fa52-4ff6-a619-09f515ada47c")
-
+    const newMessage = useMemo(
+        () =>
+          new Audio(
+            "https://firebasestorage.googleapis.com/v0/b/react-chat-6ddfc.appspot.com/o/audio%2FNewMessage.mp3?alt=media&token=3a5bbd37-fa52-4ff6-a619-09f515ada47c"
+          ),
+        []
+      );
     useEffect(() => {
         const getChats = () => {
             const unsub = onSnapshot(doc(db, "userChats", currentUser.uid), (doc) => {
@@ -24,13 +31,12 @@ const Chats = () => {
     }, [currentUser.uid]);
 
     useEffect(() => {
-        // Ajouter la logique ici pour surveiller les changements de unread dans chaque message
         Object.entries(chats).forEach((chat, chatId) => {
           if (chat[chatId]?.lastMessage?.unread) {
             newMessage.play();
           }
         });
-      }, [chats]);
+      }, [chats, newMessage]);
 
     const handleSelect = async (chatId, u) => {
         if (chats[chatId]?.lastMessage?.unread) {
@@ -117,6 +123,11 @@ const Chats = () => {
                         </div>
                     </Tooltip>
                 ))}
+                <div className='logoutIcon'>
+            <Tooltip title="logout" arrow>
+                    <PowerSettingsNewIcon  onClick={() => signOut(auth)} />
+            </Tooltip>
+            </div>
         </div>
     );
 };
