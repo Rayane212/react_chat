@@ -57,7 +57,7 @@ const Navbar = () => {
         <div className='navbar'>
             <div className='logoMsg'>
                 <Tooltip title="see all users" arrow>
-                    <>
+                    <div>
                         <Badge badgeContent={unreadCount} color="error" overlap="circular" size="smaill" anchorOrigin={{
                             vertical: 'top',
                             horizontal: 'right',
@@ -67,7 +67,7 @@ const Navbar = () => {
                             </Avatar>
                         </Badge>
                         <span className='logo' onClick={() => handleFriends()}>React Chat</span>
-                    </>
+                    </div>
 
                 </Tooltip>
 

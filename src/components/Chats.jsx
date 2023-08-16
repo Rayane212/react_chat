@@ -9,6 +9,7 @@ const Chats = () => {
     const [chats, setChats] = useState([]);
     const { currentUser } = useContext(AuthContext)
     const { dispatch } = useContext(ChatContext)
+    const newMessage = new Audio("https://firebasestorage.googleapis.com/v0/b/react-chat-6ddfc.appspot.com/o/audio%2FNewMessage.mp3?alt=media&token=3a5bbd37-fa52-4ff6-a619-09f515ada47c")
 
     useEffect(() => {
         const getChats = () => {
@@ -21,6 +22,15 @@ const Chats = () => {
         };
         currentUser.uid && getChats();
     }, [currentUser.uid]);
+
+    useEffect(() => {
+        // Ajouter la logique ici pour surveiller les changements de unread dans chaque message
+        Object.entries(chats).forEach((chat, chatId) => {
+          if (chat[chatId]?.lastMessage?.unread) {
+            newMessage.play();
+          }
+        });
+      }, [chats]);
 
     const handleSelect = async (chatId, u) => {
         if (chats[chatId]?.lastMessage?.unread) {

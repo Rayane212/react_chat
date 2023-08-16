@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import Img from '../img/img.png'
 import Attach from '../img/attach.png'
 import { ChatContext } from '../context/ChatContext';
@@ -9,7 +9,6 @@ import { v4 as uuid } from 'uuid';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import LinearDeterminate from './mui/LinearDeterminate';
 import { Alert } from '@mui/material';
-import AudioPlayer from './AudioPlayer';
 
 
 const Input = () => {
@@ -19,10 +18,11 @@ const Input = () => {
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const audioRef = useRef(new Audio("../audio/SendMessage.mp3")); // Créez une instance d'Audio
 
   const { currentUser } = useContext(AuthContext);
   const { data } = useContext(ChatContext);
+
+  const sendMessage = new Audio("https://firebasestorage.googleapis.com/v0/b/react-chat-6ddfc.appspot.com/o/audio%2FSendMessage.mp3?alt=media&token=d5d77da4-319c-425c-9f88-2daeb6e826cc")
 
 
 
@@ -103,9 +103,8 @@ const Input = () => {
       },
       [data.chatId + ".date"]: serverTimestamp(),
     });
-    if (audioRef.current) {
-      await audioRef.current.play();
-    }
+
+    sendMessage.play()
 
     setText("");
     setImg(null);
@@ -158,8 +157,6 @@ const Input = () => {
       {error &&
         (<Alert className="" severity="error" sx={{ position: 'absolute', bottom: 16, right: 16 }}>An error occurred during upload. Please try again later.</Alert>)
       }
-      <AudioPlayer ref={audioRef} src="../audio/SendMessage.mp3" />
-
     </>
   );
 };

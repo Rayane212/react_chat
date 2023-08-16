@@ -52,7 +52,7 @@ const Message = ({ message }) => {
     useEffect(() => {
         const intervalId = setInterval(() => {
             setElapsedTimeText(formatElapsedTime(timestamp));
-        }, 10000); // Update every minute
+        }, 10000); 
 
         return () => clearInterval(intervalId);
     }, [timestamp]);
