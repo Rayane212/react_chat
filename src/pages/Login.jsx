@@ -3,9 +3,11 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase'
 import { useNavigate, Link } from 'react-router-dom'
 import { Alert } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 const Login = () => {
     const [err, setErr] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate()
 
     const handleSubmit = async (e) => {
@@ -26,7 +28,7 @@ const Login = () => {
             } else {
                 setErr("Something went wrong");
             }
-            
+
         }
     }
 
@@ -37,7 +39,17 @@ const Login = () => {
                 <span className='title'>Login</span>
                 <form onSubmit={handleSubmit}>
                     <input type="email" placeholder="email" name="email" id="email" autoComplete="username" required />
-                    <input type="password" placeholder="password" name="password" id="password" autoComplete="current-password" required />
+                    <div className="passwordInput">
+                    <input type={showPassword ? "text" : "password"} placeholder="password" name="password" id="password" autoComplete="current-password" required />
+                    <span
+                            className="passwordIcon"
+                            onClick={() => setShowPassword(!showPassword)}
+                        >
+                            {showPassword ? <Visibility /> : <VisibilityOff />}
+                        </span>
+                    </div>
+
+
                     <button>Sign in</button>
                     {err !== "" && <Alert className="" severity="error" >{err}</Alert>}
                 </form>

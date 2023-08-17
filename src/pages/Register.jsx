@@ -6,9 +6,11 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { doc, setDoc } from "firebase/firestore";
 import { useNavigate, Link } from 'react-router-dom';
 import { Alert } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 const Register = () => {
   const [err, setErr] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -69,8 +71,15 @@ const Register = () => {
         <form onSubmit={handleSubmit}>
           <input type="text" placeholder='display name' />
           <input type="email" placeholder="email" id="email" required />
-          <input type="password" placeholder="password" id="password" required />
-          <input style={{ display: "none" }} type="file" id="file" />
+          <div className="passwordInput">
+                    <input type={showPassword ? "text" : "password"} placeholder="password" name="password" id="password" autoComplete="current-password" required />
+                    <span
+                            className="passwordIcon"
+                            onClick={() => setShowPassword(!showPassword)}
+                        >
+                            {showPassword ? <Visibility /> : <VisibilityOff />}
+                        </span>
+                    </div>          <input style={{ display: "none" }} type="file" id="file" />
           <label htmlFor='file'>
             <img src={Add} alt="" />
             <span>Add an Avatar</span>

@@ -88,7 +88,22 @@ body {
         &::placeholder {
           color: rgb(175, 175, 175);
         }
+
+       
       }
+
+      .passwordInput {
+        position: relative;
+    }
+    
+    .passwordIcon {
+        position: absolute;
+        color: nth($blue-shades, 2);
+        top: 50%;
+        transform: translateY(-50%);
+        right: 10px; 
+        cursor: pointer;
+    }
 
       button {
         background-color: nth($blue-shades, 4);
@@ -98,6 +113,9 @@ body {
         font-weight: bold;
         border: none;
         cursor: pointer;
+      }
+      button:hover{
+        opacity: 0.5;
       }
 
       label {
@@ -118,6 +136,13 @@ body {
       color: $text-color;
       font-size: 12px;
       margin-top: 10px;
+
+      a{
+        color: #5077a8;
+        font-size: 14px;
+      }:hover{
+        opacity: 0.5;
+      }
     }
   }
 }
