@@ -4,6 +4,7 @@ import { db } from "../firebase";
 import { Card, CardHeader, Avatar, CircularProgress, Backdrop, Tooltip, Snackbar, Alert } from '@mui/material';
 import { ChatContext } from '../context/ChatContext';
 import { AuthContext } from '../context/AuthContext';
+import StyledBadge from './mui/StyledBadge';
 
 const Friends = () => {
     const [users, setUsers] = useState([]);
@@ -20,7 +21,7 @@ const Friends = () => {
 
         setError(false);
     };
-    
+
     const handleSelect = async (u) => {
         const conbinedId = currentUser.uid > u.uid ? currentUser.uid + u.uid : u.uid + currentUser.uid;
 
@@ -79,6 +80,37 @@ const Friends = () => {
         getUsers();
     }, []);
 
+    const badgeStyleOnlineOffline = (online) => {
+        if (online) {
+            return {
+                backgroundColor: '#44b700',
+                color: '#44b700',
+            };
+        } else {
+            return {
+                backgroundColor: 'grey',
+                color: 'grey',
+            };
+        }
+    }
+
+    const sortFriends = (a, b) => {
+        const userAOnline = a?.online;
+        const userBOnline = b?.online;
+
+        if (currentUser.uid === a.uid) return -1;
+        if (currentUser.uid === b.uid) return 1;
+
+        if (currentUser.uid === a.uid) return -1; // Mettre l'utilisateur actuel en premier
+        if (currentUser.uid === b.uid) return 1;  // Mettre l'utilisateur actuel en premier
+
+        if (userAOnline && !userBOnline) return -1; // Mettre les utilisateurs en ligne ensuite
+        if (!userAOnline && userBOnline) return 1;  // Mettre les utilisateurs en ligne ensuite
+
+        return a.displayName.localeCompare(b.displayName); // Enfin, trier par ordre alphabétique
+    };
+
+
     return (
         <div className='friends'>
             <div className='Info'>
@@ -101,15 +133,20 @@ const Friends = () => {
                         </div>
                     ) : (
                         <div>
-                            {users?.sort((a, b) => {
-                                if (a.uid === currentUser.uid) return -1;
-                                if (b.uid === currentUser.uid) return 1;
-                                return a.displayName.localeCompare(b.displayName);
-                            }).map(user => (
+                            {users?.sort(sortFriends).map(user => (
                                 <Tooltip title={currentUser.uid === user.uid ? user.displayName + " (You)" : user.displayName} key={user.uid} arrow>
                                     <Card className='friendCard' sx={{ cursor: "pointer" }} onClick={() => handleSelect(user)}>
                                         <CardHeader
-                                            avatar={<Avatar src={user.photoURL} alt={user.displayName} />}
+                                            avatar={
+                                                <StyledBadge
+                                                    overlap="circular"
+                                                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                                    variant="dot"
+                                                    badgeStyle={badgeStyleOnlineOffline(user?.online)}
+                                                >
+                                                    <Avatar src={user.photoURL} alt={user.displayName} />
+                                                </StyledBadge>
+                                            }
                                             title={currentUser.uid === user.uid ? user.displayName + " (You)" : user.displayName}
                                         />
                                     </Card>
@@ -120,7 +157,7 @@ const Friends = () => {
                 </div>
             )}
 
-             <Snackbar open={error} autoHideDuration={6000} onClose={handleClose}>
+            <Snackbar open={error} autoHideDuration={6000} onClose={handleClose}>
                 <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
                     {msgError}
                 </Alert>

@@ -5,8 +5,6 @@ import Home from './pages/Home';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useContext, useEffect } from 'react';
 import { AuthContext } from './context/AuthContext';
-import { auth, db } from './firebase';
-import { collection, doc, getDocs, updateDoc } from 'firebase/firestore';
 
 function App() {
   const { currentUser } = useContext(AuthContext)

@@ -1,24 +1,25 @@
-import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
+import { collection, doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { auth, db } from '../firebase';
 import { AuthContext } from '../context/AuthContext';
 import { ChatContext } from '../context/ChatContext';
-import { Avatar, Badge, Tooltip } from '@mui/material';
+import { Avatar, Tooltip } from '@mui/material';
 import { signOut } from 'firebase/auth';
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
-import { styled } from '@mui/material/styles';
+import StyledBadge from './mui/StyledBadge';
 
 const Chats = () => {
     const [chats, setChats] = useState([]);
+    const [onlineUsers, setOnlineUsers] = useState({});
     const { currentUser } = useContext(AuthContext)
     const { dispatch } = useContext(ChatContext)
     const newMessage = useMemo(
         () =>
-          new Audio(
-            "https://firebasestorage.googleapis.com/v0/b/react-chat-6ddfc.appspot.com/o/audio%2FNewMessage.mp3?alt=media&token=3a5bbd37-fa52-4ff6-a619-09f515ada47c"
-          ),
+            new Audio(
+                "https://firebasestorage.googleapis.com/v0/b/react-chat-6ddfc.appspot.com/o/audio%2FNewMessage.mp3?alt=media&token=3a5bbd37-fa52-4ff6-a619-09f515ada47c"
+            ),
         []
-      );
+    );
     useEffect(() => {
         const getChats = () => {
             const unsub = onSnapshot(doc(db, "userChats", currentUser.uid), (doc) => {
@@ -33,11 +34,26 @@ const Chats = () => {
 
     useEffect(() => {
         Object.entries(chats).forEach((chat, chatId) => {
-          if (chat[chatId]?.lastMessage?.unread) {
-            newMessage.play();
-          }
+            if (chat[chatId]?.lastMessage?.unread) {
+                newMessage.play();
+            }
         });
-      }, [chats, newMessage]);
+    }, [chats, newMessage]);
+
+    useEffect(() => {
+        const unsubscribe = onSnapshot(collection(db, 'users'), (snapshot) => {
+            const updatedOnlineUsers = {};
+            snapshot.forEach((userDoc) => {
+                const userData = userDoc.data();
+                updatedOnlineUsers[userDoc.id] = { ...userData };
+            });
+            setOnlineUsers(updatedOnlineUsers);
+        });
+
+        return () => {
+            unsubscribe();
+        };
+    }, []);
 
     const handleSelect = async (chatId, u) => {
         if (chats[chatId]?.lastMessage?.unread) {
@@ -86,42 +102,57 @@ const Chats = () => {
         }
     };
 
-    const StyledBadge = styled(Badge)(({ theme }) => ({
-        '& .MuiBadge-badge': {
-          backgroundColor: '#44b700',
-          color: '#44b700',
-          boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
-          '&::after': {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            borderRadius: '50%',
-            animation: 'ripple 1.2s infinite ease-in-out',
-            border: '1px solid currentColor',
-            content: '""',
-          },
-        },
-        '@keyframes ripple': {
-          '0%': {
-            transform: 'scale(.8)',
-            opacity: 1,
-          },
-          '100%': {
-            transform: 'scale(2.4)',
-            opacity: 0,
-          },
-        },
-      }));
+    const handleSignOut = async () => {
+        await signOut(auth);
+        await updateDoc(doc(db, "users", currentUser.uid), { online: false });
+    };
 
-    
+    const sortChats = (a, b) => {
+        if (b[1]?.lastMessage?.unread && !a[1]?.lastMessage?.unread) {
+            return 1;
+        } else if (!b[1]?.lastMessage?.unread && a[1]?.lastMessage?.unread) {
+            return -1;
+        }
 
+        const userAOnline = onlineUsers[a[1].userInfo.uid]?.online;
+        const userBOnline = onlineUsers[b[1].userInfo.uid]?.online;
+
+        if (userAOnline && !userBOnline) {
+            return -1;
+        } else if (!userAOnline && userBOnline) {
+            return 1;
+        }
+
+        return b[1].date - a[1].date;
+    };
+
+
+    const badgeStyleOnlineOffline = (online) => {
+        if (online) {
+            return {
+                backgroundColor: '#44b700',
+                color: '#44b700',
+            };
+        } else {
+            return {
+                backgroundColor: 'grey',
+                color: 'grey',
+            };
+        }
+
+    }
+
+    const badgeStyleNewMessage = () => {
+        return {
+            backgroundColor: 'red',
+            color: 'white',
+        };
+    }
 
     return (
         <div className='chats'>
             {Object.entries(chats)
-                ?.sort((a, b) => b[1].date - a[1].date)
+                ?.sort(sortChats)
                 .map(([chatId, chat]) => (
                     <Tooltip title={chat.userInfo.displayName} key={chatId} arrow>
                         <div
@@ -130,16 +161,25 @@ const Chats = () => {
                         >
                             <>
                                 <StyledBadge
+                                    color="error"
                                     overlap="circular"
-                                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                    anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
                                     variant="dot"
-                                    invisible={!chat.userInfo.online}
-                                >
-                                    <Avatar
-                                        className='img'
-                                        src={chat.userInfo.photoURL}
-                                        alt={chat.userInfo.displayName}
-                                    />
+                                    badgeStyle={badgeStyleNewMessage()}
+                                    invisible={!chat.lastMessage?.unread}>
+                                    <StyledBadge
+                                        overlap="circular"
+                                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                        variant="dot"
+                                        badgeStyle={badgeStyleOnlineOffline(onlineUsers[chat.userInfo.uid]?.online)}
+
+                                    >
+                                        <Avatar
+                                            className='img'
+                                            src={chat.userInfo.photoURL}
+                                            alt={chat.userInfo.displayName}
+                                        />
+                                    </StyledBadge>
                                 </StyledBadge>
                             </>
 
@@ -154,10 +194,10 @@ const Chats = () => {
                         </div>
                     </Tooltip>
                 ))}
-                <div className='logoutIcon'>
-            <Tooltip title="logout" arrow>
-                    <PowerSettingsNewIcon  onClick={() => signOut(auth)} />
-            </Tooltip>
+            <div className='logoutIcon'>
+                <Tooltip title="logout" arrow>
+                    <PowerSettingsNewIcon onClick={() => handleSignOut()} />
+                </Tooltip>
             </div>
         </div>
     );
