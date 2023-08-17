@@ -6,7 +6,7 @@ import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import { ChatContext } from '../context/ChatContext';
 import { Avatar, Badge, Tooltip } from '@mui/material';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 
 const Navbar = () => {
     const { currentUser } = useContext(AuthContext);
@@ -50,6 +50,10 @@ const Navbar = () => {
     const handleFriends = () => {
         dispatch({ type: "DISPLAY_FRIENDS" });
     }
+    const handleSignOut = async () => {
+        await signOut(auth);
+        await updateDoc(doc(db, "users", currentUser.uid), { online: false });
+      };
 
 
     return (
@@ -75,7 +79,7 @@ const Navbar = () => {
                 <Avatar className="img" src={currentUser.photoURL} alt={currentUser.displayName} />
                 <span>{currentUser.displayName}</span>
                 <Tooltip title="logout" arrow>
-                    <PowerSettingsNewIcon className='logout' onClick={() => signOut(auth)} />
+                    <PowerSettingsNewIcon className='logout' onClick={() => handleSignOut()} />
                 </Tooltip>
             </div>
             

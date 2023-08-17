@@ -6,6 +6,7 @@ import { ChatContext } from '../context/ChatContext';
 import { Avatar, Badge, Tooltip } from '@mui/material';
 import { signOut } from 'firebase/auth';
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
+import styled from '@emotion/styled';
 
 const Chats = () => {
     const [chats, setChats] = useState([]);
@@ -84,6 +85,8 @@ const Chats = () => {
             return `${months} year${months !== 1 ? 's' : ''} ago`;
         }
     };
+
+    
 
 
     return (

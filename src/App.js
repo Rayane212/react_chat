@@ -5,17 +5,14 @@ import Home from './pages/Home';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useContext, useEffect } from 'react';
 import { AuthContext } from './context/AuthContext';
+import { auth, db } from './firebase';
+import { collection, doc, getDocs, updateDoc } from 'firebase/firestore';
 
 function App() {
   const { currentUser } = useContext(AuthContext)
 
   useEffect(() => {
     const enterFullscreen = () => {
-      if (window.screen.orientation) {
-        window.screen.orientation.lock('portrait').catch(() => {
-          console.warn("L'orientation en mode portrait n'a pas pu être verrouillée.");
-        });
-      }
 
       if (window.navigator.standalone) {
         const element = document.documentElement;

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase'
+import { auth, db } from '../firebase'
 import { useNavigate, Link } from 'react-router-dom'
 import { Alert } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { collection, doc, updateDoc } from 'firebase/firestore';
 
 const Login = () => {
     const [err, setErr] = useState("");
@@ -17,6 +18,10 @@ const Login = () => {
 
         try {
             await signInWithEmailAndPassword(auth, email, password);
+            const usersRef = collection(db, "users");
+            await updateDoc(doc(usersRef, auth.currentUser.uid), { online: true });
+
+
             navigate("/");
 
         } catch (error) {

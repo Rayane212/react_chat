@@ -3,7 +3,7 @@ import Add from '../img/addAvatar.png';
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, storage, db } from "../firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { doc, setDoc } from "firebase/firestore";
+import { collection, doc, setDoc, updateDoc } from "firebase/firestore";
 import { useNavigate, Link } from 'react-router-dom';
 import { Alert } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
@@ -40,10 +40,13 @@ const Register = () => {
               uid: res.user.uid,
               displayName,
               email,
+              online : true,
               photoURL: downloadURL,
             });
 
             await setDoc(doc(db, "userChats", res.user.uid), {});
+            const usersRef = collection(db, "users");
+            await updateDoc(doc(usersRef, res.user.uid), { online: true });
             navigate("/");
           } catch (err) {
             setErr("Something went wrong");
