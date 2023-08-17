@@ -140,7 +140,21 @@ const Input = () => {
         )}
       </div>
       <div className='input'>
-        <input type="text" placeholder='Type something...' onKeyDown={handleKey} onChange={e => setText(e.target.value)} value={text} />
+      <textarea
+          className='textfield'
+          id="outlined-multiline-flexible"
+          placeholder='Type something...'
+          rows='2'
+          style={{ whiteSpace: 'pre-line' }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault(); // Empêche l'ajout automatique d'une nouvelle ligne
+              setText(text + '\n'); // Ajoute un retour à la ligne dans le contenu
+            }
+          }} 
+          onChange={e => setText(e.target.value)} 
+          value={text}
+        />
         <div className="send">
 
           <input type="file" accept='image/*, video/*, audio/*' style={{ display: 'none' }} id="file"

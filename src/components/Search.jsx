@@ -3,17 +3,35 @@ import { collection, query, where, getDocs, setDoc, doc, updateDoc, serverTimest
 import { db } from "../firebase"
 import { AuthContext } from './../context/AuthContext';
 import SearchIcon from '@mui/icons-material/Search';
-import { Avatar, TextField } from '@mui/material';
+import { Alert, Avatar, Fade, Paper, Popper, Snackbar, TextField } from '@mui/material';
 
 const Search = () => {
     const [username, setUsername] = useState("");
     const [user, setUser] = useState(null);
     const [err, setErr] = useState(false);
+    const searchInputRef = useRef(null);
     const [searchVisible, setSearchVisible] = useState(false);
-
     const { currentUser } = useContext(AuthContext);
 
-    const searchInputRef = useRef(null);
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [open, setOpen] = React.useState(false);
+    const [placement, setPlacement] = React.useState();
+
+
+
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setErr(false);
+    };
+
+    const handleClick = (newPlacement) => (event) => {
+        setAnchorEl(event.currentTarget);
+        setOpen((prev) => placement !== newPlacement || !prev);
+        setPlacement(newPlacement);
+    };
 
     useEffect(() => {
         if (searchVisible) {
@@ -21,9 +39,6 @@ const Search = () => {
         }
     }, [searchVisible]);
 
-    const handleSearchIconClick = () => {
-        setSearchVisible(true);
-    };
 
     const handleClickOutside = (e) => {
         if (searchInputRef.current && !searchInputRef.current.contains(e.target)) {
@@ -62,6 +77,9 @@ const Search = () => {
 
     const handleKey = (e) => {
         e.code === "Enter" && handleSearch();
+        if (e.code === "Enter" || e.code === "Escape") {
+            setOpen(false);
+        }
     };
 
     const handleSelect = async () => {
@@ -106,14 +124,27 @@ const Search = () => {
 
     return (
         <div className='search'>
-            <SearchIcon className='searchIcon' onClick={handleSearchIconClick} />
+            <Popper open={open} anchorEl={anchorEl} placement={placement} transition>
+                {({ TransitionProps }) => (
+                    <Fade {...TransitionProps} timeout={350}>
+                        <Paper>
+                            <TextField className="input" id="outlined-search" label="Find a user" type="search" variant='standard' onKeyDown={handleKey} onChange={e => setUsername(e.target.value)} value={username} />
+                        </Paper>
+                    </Fade>
+                )}
+            </Popper>
+
+            <SearchIcon className='searchIcon' onClick={handleClick('right-start')} />
 
             <div className={`searchForm ${searchVisible ? 'mobile' : ''}`} ref={searchInputRef}>
-                <TextField className="input" id="outlined-search" label="Find a user" type="search"   onKeyDown={handleKey} onChange={e => setUsername(e.target.value)} value={username} />
-                {/* <input type="text" placeholder='Find a user' onKeyDown={handleKey} onChange={e => setUsername(e.target.value)} value={username} /> */}
+                <TextField className="input" id="outlined-search" label="Find a user" type="search" onKeyDown={handleKey} onChange={e => setUsername(e.target.value)} value={username} />
             </div>
 
-            {err && <span>User not found</span>}
+            <Snackbar open={err} autoHideDuration={6000} onClose={handleClose}>
+                <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+                    User not found.
+                </Alert>
+            </Snackbar>
 
             {user && (
                 <div className="userChat" onClick={handleSelect}>

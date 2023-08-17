@@ -1,11 +1,11 @@
 @mixin mobile_portrait {
-  @media screen and (max-width: 480px) {
+  @media screen and (max-width: 700px) {
     @content;
   }
 }
 
 @mixin mobile_landscape {
-  @media screen and (min-width: 480px) and (max-width: 1180px) {
+  @media screen and (min-width: 700px) and (max-width: 1180px) {
     @content;
   }
 }
@@ -177,14 +177,25 @@ body {
 
         .logoMsg {
           display: flex;
-          margin: 0 auto;
           gap: 5px;
 
           .msgIcon {
             cursor: pointer;
 
+          }
 
 
+        }
+
+        @include mobile_portrait() {
+          .logoMsg {
+            margin: 0 auto;
+          }
+        }
+
+        @include mobile_landscape() {
+          .logoMsg {
+            margin: 0 auto;
           }
         }
 
@@ -194,15 +205,10 @@ body {
           cursor: pointer;
 
 
-          @include tablet {
-            display: none;
-          }
-
           @include mobile_portrait() {
             display: none;
           }
 
-          @include mobile_landscape() {}
         }
 
         .user {
@@ -213,19 +219,21 @@ body {
             display: none;
           }
 
-          @include mobile_landscape() {
-            display: none;
-          }
 
           span {
             margin: auto;
-
+            @include mobile_landscape() {
+              display: none;
+            }
           }
 
           .img {
             object-fit: cover;
 
             @include mobile_portrait() {
+              display: none;
+            }
+            @include mobile_landscape() {
               display: none;
             }
           }
@@ -236,16 +244,23 @@ body {
 
             cursor: pointer;
 
+            &:hover {
+              opacity: 0.5;
+            }
+
             @include mobile_portrait() {
               display: block;
               position: absolute;
-              bottom: 10px;
-              left: 18px;
+              bottom: 0;
+              left: 0;
+              right: 0;
             }
-
-
-            &:hover {
-              opacity: 0.5;
+            
+            @include mobile_landscape() {
+              display: block;
+              position: absolute;
+              top: 22px;
+              right: 10px;
             }
           }
 
@@ -267,7 +282,7 @@ body {
         @include mobile_portrait() {
           .searchIcon {
             display: block;
-            color: #ddddf7;
+            color: nth($blue-shades, 5);
             padding: 5px;
             margin: 0 auto;
             cursor: pointer;
@@ -318,7 +333,22 @@ body {
             }
           }
         }
-
+        .userChat{
+          padding: 10px;
+          display: flex;
+          flex: 1;
+          align-items: center;
+          gap: 10px;
+          background-color: nth($blue-shades, 3);
+          color: white;
+          border-bottom: 1px solid nth($blue-shades, 1);
+          cursor: pointer;
+  
+          &:hover {
+            background-color: nth($blue-shades, 4);
+          }
+  
+        }
       }
 
       .userChat {
@@ -489,6 +519,7 @@ body {
               padding: 10px 20px;
               border-radius: 0px 10px 10px 10px;
               max-width: max-content;
+              white-space: pre-line;
             }
 
             img,
@@ -518,23 +549,35 @@ body {
       }
 
       .input {
-        height: 50px;
+        height: fit-content;
         background-color: white;
         padding: 10px;
         display: flex;
         align-items: center;
         justify-content: space-between;
 
-        input {
+        .textfield {
           width: 100%;
+          height: 100%; 
+          resize: none; 
+          overflow: hidden;
           border: none;
           outline: none;
           color: #2f2d52;
           font-size: 18px;
+          
 
           &::placeholder {
             color: lightgray;
           }
+          &:focus {
+            border-color: #1976d2;
+          }
+          &:hover,
+          &:focus {
+            overflow: auto;
+          }
+          
         }
 
         .send {
