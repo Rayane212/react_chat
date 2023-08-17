@@ -27,7 +27,7 @@ const Input = () => {
 
 
   const handleKey = (e) => {
-    e.code === "Enter" && handleSend()
+     e.code === "Enter" && handleSend()
   };
 
   const handleSend = async () => {
@@ -130,6 +130,8 @@ const Input = () => {
     }
   };
 
+ 
+
 
 
   return (
@@ -144,15 +146,9 @@ const Input = () => {
           className='textfield'
           id="outlined-multiline-flexible"
           placeholder='Type something...'
-          rows='2'
-          style={{ whiteSpace: 'pre-line' }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault(); // Empêche l'ajout automatique d'une nouvelle ligne
-              setText(text + '\n'); // Ajoute un retour à la ligne dans le contenu
-            }
-          }} 
-          onChange={e => setText(e.target.value)} 
+          rows={3}
+          onKeyDown={handleKey}
+          onChange={(e) => setText(e.target.value)}
           value={text}
         />
         <div className="send">

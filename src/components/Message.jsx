@@ -4,7 +4,6 @@ import { ChatContext } from '../context/ChatContext';
 import { Avatar } from '@mui/material';
 
 const Message = ({ message }) => {
-
     const { currentUser } = useContext(AuthContext)
     const { data } = useContext(ChatContext)
 
@@ -14,8 +13,9 @@ const Message = ({ message }) => {
     const ref = useRef()
 
     useEffect(() => {
-        ref.current?.scrollIntoView({ behavior: "smooth" })
+        ref.current?.scrollIntoView({ behavior: "smooth", block: 'end', inline: 'nearest'})
     }, [message]);
+    
 
     const formatElapsedTime = (timestamp) => {
         const now = new Date();
@@ -64,7 +64,7 @@ const Message = ({ message }) => {
                 <span>{elapsedTimeText}</span>
             </div>
             <div className="messageContent">
-                {message.text && <p>{message.text}</p>}
+                {message.text && <p style={{ wordWrap: 'break-word' }}>{message.text}</p>}
                 {message.img && <img src={message.img} alt="" />}
                 {message.video && <video src={message.video} controls />}
 

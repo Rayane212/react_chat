@@ -48,7 +48,6 @@ const Navbar = () => {
 
 
     const handleFriends = () => {
-        console.log(unreadCount)
         dispatch({ type: "DISPLAY_FRIENDS" });
     }
 

@@ -1,18 +1,26 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { collection, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
-import { Card, CardHeader, Avatar, CircularProgress, Backdrop, Tooltip } from '@mui/material';
+import { Card, CardHeader, Avatar, CircularProgress, Backdrop, Tooltip, Snackbar, Alert } from '@mui/material';
 import { ChatContext } from '../context/ChatContext';
 import { AuthContext } from '../context/AuthContext';
 
 const Friends = () => {
     const [users, setUsers] = useState([]);
+    const [error, setError] = useState(false);
+    const [msgError, setMsgError] = useState("");
     const [loading, setLoading] = useState(false);
     const { dispatch } = useContext(ChatContext)
     const { currentUser } = useContext(AuthContext)
 
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
 
-
+        setError(false);
+    };
+    
     const handleSelect = async (u) => {
         const conbinedId = currentUser.uid > u.uid ? currentUser.uid + u.uid : u.uid + currentUser.uid;
 
@@ -45,7 +53,8 @@ const Friends = () => {
             }
 
         } catch (error) {
-            console.log(error)
+            setError(true);
+            setMsgError(error);
         }
 
         dispatch({ type: "CHANGE_USER", payload: u })
@@ -61,7 +70,8 @@ const Friends = () => {
                 const usersData = querySnapshot.docs.map(doc => doc.data());
                 setUsers(usersData);
             } catch (error) {
-                console.log(error);
+                setError(true)
+                setMsgError(error)
             } finally {
                 setLoading(false);
             }
@@ -109,6 +119,12 @@ const Friends = () => {
                     )}
                 </div>
             )}
+
+             <Snackbar open={error} autoHideDuration={6000} onClose={handleClose}>
+                <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+                    {msgError}
+                </Alert>
+            </Snackbar>
         </div>
     );
 };
