@@ -20,6 +20,14 @@ const Chats = () => {
             'https://firebasestorage.googleapis.com/v0/b/react-chat-6ddfc.appspot.com/o/audio%2FNewMessage.mp3?alt=media&token=3a5bbd37-fa52-4ff6-a619-09f515ada47c'
         );
     }, []);
+    const showNotification = (message, senderName) => {
+        if ("Notification" in window && Notification.permission === "granted") {
+            new Notification("Nouveau message de " + senderName, {
+                body: message,
+                icon: "../img/logo-removebg-preview.jpg",
+            });
+        }
+    };
 
     const handlePlaySound = useCallback(() => {
 
@@ -67,9 +75,11 @@ const Chats = () => {
         Object.entries(chats).forEach((chat, chatId) => {
             if (chat[1]?.lastMessage?.unread) {
                 handlePlaySound();
+                showNotification(chat[1]?.lastMessage?.text, chat[1].userInfo.displayName);
+
             }
         });
-    }, [chats, handlePlaySound]);
+    }, [chats, handlePlaySound, currentUser.uid]);
 
 
     const handleSelect = async (chatId, u) => {
@@ -121,7 +131,7 @@ const Chats = () => {
 
     const handleSignOut = async () => {
         await signOut(auth);
-        await updateDoc(doc(db, "users", currentUser.uid), { online: false });
+        await updateDoc(doc(db, "users", currentUser.uid), { online: "offline" });
     };
 
     const sortChats = (a, b) => {
@@ -131,66 +141,33 @@ const Chats = () => {
             return -1;
         }
 
-        const userAOnline = onlineUsers[a[1].userInfo.uid]?.online;
-        const userBOnline = onlineUsers[b[1].userInfo.uid]?.online;
-
-        if (userAOnline && !userBOnline) {
-            return -1;
-        } else if (!userAOnline && userBOnline) {
-            return 1;
-        }
-
         return b[1].date - a[1].date;
     };
-
-
-    const badgeStyleOnlineOffline = (online) => {
-        if (online) {
-            return {
-                backgroundColor: '#44b700',
-                color: '#44b700',
-            };
-        } else {
-            return {
-                backgroundColor: 'grey',
-                color: 'grey',
-            };
-        }
-
-    }
-
-    const badgeStyleNewMessage = () => {
-        return {
-            backgroundColor: 'red',
-            color: 'white',
-        };
-    }
 
     return (
         <div className='chats'>
             {Object.entries(chats)
                 ?.sort(sortChats)
                 .map(([chatId, chat]) => (
-                    <Tooltip title={chat.userInfo.displayName} key={chatId} arrow>
+                    <Tooltip title={chat.userInfo.displayName + " (" + (onlineUsers[chat.userInfo.uid]?.online) + ")"} key={chatId} arrow>
                         <div
                             className={`userChat ${chat.lastMessage?.unread ? 'new-message' : ''}`}
                             onClick={() => handleSelect(chatId, chat.userInfo)}
                         >
                             <>
                                 <StyledBadge
-                                    color="error"
                                     overlap="circular"
-                                    anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                                     variant="dot"
-                                    badgestyle={badgeStyleNewMessage()}
-                                    invisible={!chat.lastMessage?.unread}>
+                                    mode={onlineUsers[chat.userInfo.uid]?.online}>
                                     <StyledBadge
+                                        color="error"
                                         overlap="circular"
-                                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
                                         variant="dot"
-                                        badgestyle={badgeStyleOnlineOffline(onlineUsers[chat.userInfo.uid]?.online)}
+                                        mode={"newMessage"}
+                                        invisible={!chat.lastMessage?.unread}>
 
-                                    >
                                         <Avatar
                                             className='img'
                                             src={chat.userInfo.photoURL}

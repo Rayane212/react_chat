@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { collection, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, onSnapshot, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { Card, CardHeader, Avatar, CircularProgress, Backdrop, Tooltip, Snackbar, Alert } from '@mui/material';
 import { ChatContext } from '../context/ChatContext';
@@ -8,6 +8,7 @@ import StyledBadge from './mui/StyledBadge';
 
 const Friends = () => {
     const [users, setUsers] = useState([]);
+    const [onlineUsers, setOnlineUsers] = useState({});
     const [error, setError] = useState(false);
     const [msgError, setMsgError] = useState("");
     const [loading, setLoading] = useState(false);
@@ -80,19 +81,21 @@ const Friends = () => {
         getUsers();
     }, []);
 
-    const badgeStyleOnlineOffline = (online) => {
-        if (online) {
-            return {
-                backgroundColor: '#44b700',
-                color: '#44b700',
-            };
-        } else {
-            return {
-                backgroundColor: 'grey',
-                color: 'grey',
-            };
-        }
-    }
+    useEffect(() => {
+        const unsub = onSnapshot(collection(db, 'users'), (snapshot) => {
+            const updatedOnlineUsers = {};
+            snapshot.forEach((userDoc) => {
+                const userData = userDoc.data();
+                updatedOnlineUsers[userDoc.id] = { ...userData };
+            });
+            setOnlineUsers(updatedOnlineUsers);
+        });
+
+        return () => {
+            unsub();
+        };
+    }, []);
+
 
     const sortFriends = (a, b) => {
         const userAOnline = a?.online;
@@ -101,13 +104,13 @@ const Friends = () => {
         if (currentUser.uid === a.uid) return -1;
         if (currentUser.uid === b.uid) return 1;
 
-        if (currentUser.uid === a.uid) return -1; // Mettre l'utilisateur actuel en premier
-        if (currentUser.uid === b.uid) return 1;  // Mettre l'utilisateur actuel en premier
+        if (currentUser.uid === a.uid) return -1;
+        if (currentUser.uid === b.uid) return 1;
 
-        if (userAOnline && !userBOnline) return -1; // Mettre les utilisateurs en ligne ensuite
-        if (!userAOnline && userBOnline) return 1;  // Mettre les utilisateurs en ligne ensuite
+        if (userAOnline === "online" && userBOnline === "offline") return -1;
+        if (userAOnline === "offline" && userBOnline === "online") return 1;
 
-        return a.displayName.localeCompare(b.displayName); // Enfin, trier par ordre alphabétique
+        return a.displayName.localeCompare(b.displayName);
     };
 
 
@@ -134,7 +137,7 @@ const Friends = () => {
                     ) : (
                         <div>
                             {users?.sort(sortFriends).map(user => (
-                                <Tooltip title={currentUser.uid === user.uid ? user.displayName + " (You)" : user.displayName} key={user.uid} arrow>
+                                <Tooltip title={(currentUser.uid === user.uid ? user.displayName + " (You)" : user.displayName) + " (" + (onlineUsers[user?.uid]?.online) + ")"} key={user.uid} arrow>
                                     <Card className='friendCard' sx={{ cursor: "pointer" }} onClick={() => handleSelect(user)}>
                                         <CardHeader
                                             avatar={
@@ -142,7 +145,7 @@ const Friends = () => {
                                                     overlap="circular"
                                                     anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                                                     variant="dot"
-                                                    badgestyle={badgeStyleOnlineOffline(user?.online)}
+                                                    mode={onlineUsers[user?.uid].online}
                                                 >
                                                     <Avatar src={user.photoURL} alt={user.displayName} />
                                                 </StyledBadge>

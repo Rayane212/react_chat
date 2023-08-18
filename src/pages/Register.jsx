@@ -40,13 +40,13 @@ const Register = () => {
               uid: res.user.uid,
               displayName,
               email,
-              online : true,
+              online: true,
               photoURL: downloadURL,
             });
 
             await setDoc(doc(db, "userChats", res.user.uid), {});
             const usersRef = collection(db, "users");
-            await updateDoc(doc(usersRef, res.user.uid), { online: true });
+            await updateDoc(doc(usersRef, res.user.uid), { online: "offline" });
             navigate("/");
           } catch (err) {
             setErr("Something went wrong");
@@ -75,14 +75,15 @@ const Register = () => {
           <input type="text" placeholder='display name' />
           <input type="email" placeholder="email" id="email" required />
           <div className="passwordInput">
-                    <input type={showPassword ? "text" : "password"} placeholder="password" name="password" id="password" autoComplete="current-password" required />
-                    <span
-                            className="passwordIcon"
-                            onClick={() => setShowPassword(!showPassword)}
-                        >
-                            {showPassword ? <Visibility /> : <VisibilityOff />}
-                        </span>
-                    </div>          <input style={{ display: "none" }} type="file" id="file" />
+            <input type={showPassword ? "text" : "password"} placeholder="password" name="password" id="password" autoComplete="current-password" required />
+            <span
+              className="passwordIcon"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <Visibility /> : <VisibilityOff />}
+            </span>
+          </div>
+          <input style={{ display: "none" }} type="file" id="file" accept='image/*' />
           <label htmlFor='file'>
             <img src={Add} alt="" />
             <span>Add an Avatar</span>

@@ -52,8 +52,8 @@ const Navbar = () => {
     }
     const handleSignOut = async () => {
         await signOut(auth);
-        await updateDoc(doc(db, "users", currentUser.uid), { online: false });
-      };
+        await updateDoc(doc(db, "users", currentUser.uid), { online: "offline" });
+    };
 
 
     return (
@@ -82,8 +82,8 @@ const Navbar = () => {
                     <PowerSettingsNewIcon className='logout' onClick={() => handleSignOut()} />
                 </Tooltip>
             </div>
-            
-            
+
+
         </div>
     );
 };

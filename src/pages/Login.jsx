@@ -19,7 +19,7 @@ const Login = () => {
         try {
             await signInWithEmailAndPassword(auth, email, password);
             const usersRef = collection(db, "users");
-            await updateDoc(doc(usersRef, auth.currentUser.uid), { online: true });
+            await updateDoc(doc(usersRef, auth.currentUser.uid), { online: "online" });
 
 
             navigate("/");
@@ -45,8 +45,8 @@ const Login = () => {
                 <form onSubmit={handleSubmit}>
                     <input type="email" placeholder="email" name="email" id="email" autoComplete="username" required />
                     <div className="passwordInput">
-                    <input type={showPassword ? "text" : "password"} placeholder="password" name="password" id="password" autoComplete="current-password" required />
-                    <span
+                        <input type={showPassword ? "text" : "password"} placeholder="password" name="password" id="password" autoComplete="current-password" required />
+                        <span
                             className="passwordIcon"
                             onClick={() => setShowPassword(!showPassword)}
                         >
