@@ -1,5 +1,5 @@
 import { collection, doc, onSnapshot, updateDoc } from 'firebase/firestore';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { auth, db } from '../firebase';
 import { AuthContext } from '../context/AuthContext';
 import { ChatContext } from '../context/ChatContext';
@@ -8,18 +8,30 @@ import { signOut } from 'firebase/auth';
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 import StyledBadge from './mui/StyledBadge';
 
+
 const Chats = () => {
+    const [interact, setInteract] = useState(false)
     const [chats, setChats] = useState([]);
     const [onlineUsers, setOnlineUsers] = useState({});
     const { currentUser } = useContext(AuthContext)
     const { dispatch } = useContext(ChatContext)
-    const newMessage = useMemo(
-        () =>
-            new Audio(
-                "https://firebasestorage.googleapis.com/v0/b/react-chat-6ddfc.appspot.com/o/audio%2FNewMessage.mp3?alt=media&token=3a5bbd37-fa52-4ff6-a619-09f515ada47c"
-            ),
-        []
-    );
+    const newMessageSound = useMemo(() => {
+        return new Audio(
+            'https://firebasestorage.googleapis.com/v0/b/react-chat-6ddfc.appspot.com/o/audio%2FNewMessage.mp3?alt=media&token=3a5bbd37-fa52-4ff6-a619-09f515ada47c'
+        );
+    }, []);
+
+    const handlePlaySound = useCallback(() => {
+
+        window.addEventListener("click", () => { return setInteract(true) })
+        console.log(interact)
+        if (interact) newMessageSound.play();
+
+        newMessageSound.addEventListener('ended', () => {
+            newMessageSound.currentTime = 0;
+        });
+    }, [interact, newMessageSound]);
+
     useEffect(() => {
         const getChats = () => {
             const unsub = onSnapshot(doc(db, "userChats", currentUser.uid), (doc) => {
@@ -32,16 +44,10 @@ const Chats = () => {
         currentUser.uid && getChats();
     }, [currentUser.uid]);
 
-    useEffect(() => {
-        Object.entries(chats).forEach((chat, chatId) => {
-            if (chat[chatId]?.lastMessage?.unread) {
-                newMessage.play();
-            }
-        });
-    }, [chats, newMessage]);
+
 
     useEffect(() => {
-        const unsubscribe = onSnapshot(collection(db, 'users'), (snapshot) => {
+        const unsub = onSnapshot(collection(db, 'users'), (snapshot) => {
             const updatedOnlineUsers = {};
             snapshot.forEach((userDoc) => {
                 const userData = userDoc.data();
@@ -51,9 +57,20 @@ const Chats = () => {
         });
 
         return () => {
-            unsubscribe();
+            unsub();
         };
     }, []);
+
+
+
+    useEffect(() => {
+        Object.entries(chats).forEach((chat, chatId) => {
+            if (chat[1]?.lastMessage?.unread) {
+                handlePlaySound();
+            }
+        });
+    }, [chats, handlePlaySound]);
+
 
     const handleSelect = async (chatId, u) => {
         if (chats[chatId]?.lastMessage?.unread) {
@@ -165,13 +182,13 @@ const Chats = () => {
                                     overlap="circular"
                                     anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
                                     variant="dot"
-                                    badgeStyle={badgeStyleNewMessage()}
+                                    badgestyle={badgeStyleNewMessage()}
                                     invisible={!chat.lastMessage?.unread}>
                                     <StyledBadge
                                         overlap="circular"
                                         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                                         variant="dot"
-                                        badgeStyle={badgeStyleOnlineOffline(onlineUsers[chat.userInfo.uid]?.online)}
+                                        badgestyle={badgeStyleOnlineOffline(onlineUsers[chat.userInfo.uid]?.online)}
 
                                     >
                                         <Avatar
@@ -199,6 +216,7 @@ const Chats = () => {
                     <PowerSettingsNewIcon onClick={() => handleSignOut()} />
                 </Tooltip>
             </div>
+            <audio style={{ display: "none" }} src={newMessageSound} allow="autoplay" />
         </div>
     );
 };

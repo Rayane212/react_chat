@@ -23,8 +23,18 @@ const Input = () => {
   const { data } = useContext(ChatContext);
 
   const sendMessage = new Audio("https://firebasestorage.googleapis.com/v0/b/react-chat-6ddfc.appspot.com/o/audio%2FSendMessage.mp3?alt=media&token=d5d77da4-319c-425c-9f88-2daeb6e826cc")
+  const [isPlaying, setIsPlaying] = useState(false);
 
+  const playSendMessageSound = () => {
+    if (!isPlaying) {
+      setIsPlaying(true);
+      sendMessage.play();
 
+      sendMessage.addEventListener('ended', () => {
+        setIsPlaying(false);
+      });
+    }
+  };
 
   const handleKey = (e) => {
      e.code === "Enter" && handleSend()
@@ -104,8 +114,8 @@ const Input = () => {
       [data.chatId + ".date"]: serverTimestamp(),
     });
 
-    sendMessage.play()
-
+    playSendMessageSound();
+    
     setText("");
     setImg(null);
     setVideo(null);

@@ -142,7 +142,7 @@ const Friends = () => {
                                                     overlap="circular"
                                                     anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                                                     variant="dot"
-                                                    badgeStyle={badgeStyleOnlineOffline(user?.online)}
+                                                    badgestyle={badgeStyleOnlineOffline(user?.online)}
                                                 >
                                                     <Avatar src={user.photoURL} alt={user.displayName} />
                                                 </StyledBadge>

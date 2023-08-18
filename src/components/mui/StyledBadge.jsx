@@ -1,9 +1,9 @@
 import { styled } from '@mui/material/styles';
 import Badge from '@mui/material/Badge';
 
-const StyledBadge = styled(Badge)(({ theme, badgeStyle }) => ({
+const StyledBadge = styled(Badge)(({ theme, badgestyle }) => ({
   '& .MuiBadge-badge': {
-    ...badgeStyle,
+    ...badgestyle,
     boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
     '&::after': {
       position: 'absolute',
