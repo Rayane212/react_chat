@@ -107,8 +107,19 @@ const Friends = () => {
         if (currentUser.uid === a.uid) return -1;
         if (currentUser.uid === b.uid) return 1;
 
-        if (userAOnline === "online" && userBOnline === "offline") return -1;
-        if (userAOnline === "offline" && userBOnline === "online") return 1;
+        if (userAOnline === "online" && userBOnline === "offline") {
+            return -1;
+        } else if (userAOnline === "offline" && userBOnline === "online") {
+            return 1;
+        } else if (userAOnline === "online" && userBOnline === "inactive") {
+            return -1;
+        } else if (userAOnline === "inactive" && userBOnline === "online") {
+            return 1;
+        } else if (userAOnline === "inactive" && userBOnline === "offline") {
+            return -1;
+        } else if (userAOnline === "offline" && userBOnline === "inactive") {
+            return 1;
+        }
 
         return a.displayName.localeCompare(b.displayName);
     };

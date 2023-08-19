@@ -7,6 +7,9 @@ import { Avatar, Tooltip } from '@mui/material';
 import { signOut } from 'firebase/auth';
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 import StyledBadge from './mui/StyledBadge';
+import Notif from '../img/notification.png';
+import { useNavigate } from 'react-router-dom';
+
 
 
 const Chats = () => {
@@ -15,24 +18,19 @@ const Chats = () => {
     const [onlineUsers, setOnlineUsers] = useState({});
     const { currentUser } = useContext(AuthContext)
     const { dispatch } = useContext(ChatContext)
+    const navigate = useNavigate();
+
     const newMessageSound = useMemo(() => {
         return new Audio(
             'https://firebasestorage.googleapis.com/v0/b/react-chat-6ddfc.appspot.com/o/audio%2FNewMessage.mp3?alt=media&token=3a5bbd37-fa52-4ff6-a619-09f515ada47c'
         );
     }, []);
-    const showNotification = (message, senderName) => {
-        if ("Notification" in window && Notification.permission === "granted") {
-            new Notification("Nouveau message de " + senderName, {
-                body: message,
-                icon: "../img/logo-removebg-preview.jpg",
-            });
-        }
-    };
+
+
 
     const handlePlaySound = useCallback(() => {
 
         window.addEventListener("click", () => { return setInteract(true) })
-        console.log(interact)
         if (interact) newMessageSound.play();
 
         newMessageSound.addEventListener('ended', () => {
@@ -72,14 +70,44 @@ const Chats = () => {
 
 
     useEffect(() => {
+        const showNotification = (message, senderName, u, chatId) => {
+            if (Notification.permission !== 'granted') {
+                Notification.requestPermission();
+            } else {
+                const notification = new Notification(senderName + " sent you a new message", {
+                    body: message,
+                    icon: Notif,
+                    vibrate: [200, 100, 200],
+                });
+                setTimeout(() => {
+                    notification.close();
+                }, 10000);
+
+                notification.addEventListener('click', () => {
+                    if (document.visibilityState === 'hidden') {
+                        navigate('/')
+                    }
+
+                    if (chats[chatId]?.lastMessage?.unread) {
+                        updateDoc(doc(db, 'userChats', currentUser.uid), {
+                            [chatId + '.lastMessage.unread']: false,
+                        });
+                    }
+                    dispatch({ type: 'CHANGE_USER', payload: u });
+                    notification.close();
+
+                });
+            }
+        };
         Object.entries(chats).forEach((chat, chatId) => {
             if (chat[1]?.lastMessage?.unread) {
                 handlePlaySound();
-                showNotification(chat[1]?.lastMessage?.text, chat[1].userInfo.displayName);
+                showNotification(chat[1]?.lastMessage?.text, chat[1]?.userInfo.displayName, chat[1]?.userInfo, chat[0]);
 
             }
         });
-    }, [chats, handlePlaySound, currentUser.uid]);
+    }, [chats, handlePlaySound, currentUser.uid, dispatch, navigate]);
+
 
 
     const handleSelect = async (chatId, u) => {
@@ -88,7 +116,7 @@ const Chats = () => {
                 [chatId + '.lastMessage.unread']: false,
             });
         }
-
+        console.log(u)
         dispatch({ type: 'CHANGE_USER', payload: u });
     };
 
