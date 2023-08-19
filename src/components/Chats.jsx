@@ -116,7 +116,6 @@ const Chats = () => {
                 [chatId + '.lastMessage.unread']: false,
             });
         }
-        console.log(u)
         dispatch({ type: 'CHANGE_USER', payload: u });
     };
 
