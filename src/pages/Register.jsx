@@ -1,18 +1,31 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Add from '../img/addAvatar.png';
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, storage, db } from "../firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { collection, doc, setDoc, updateDoc } from "firebase/firestore";
 import { useNavigate, Link } from 'react-router-dom';
-import { Alert } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { Alert, Avatar, Tooltip } from '@mui/material';
+import { Clear, Visibility, VisibilityOff } from '@mui/icons-material';
 
 const Register = () => {
   const [err, setErr] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [file, setFile] = useState("");
+  const [imagePreview, setImagePreview] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  }, [file]);
+
 
   const handleSubmit = async (e) => {
     setLoading(true);
@@ -21,7 +34,6 @@ const Register = () => {
     const displayName = e.target[0].value;
     const email = e.target[1].value;
     const password = e.target[2].value;
-    const file = e.target[3].files[0];
 
     try {
       const res = await createUserWithEmailAndPassword(auth, email, password);
@@ -83,10 +95,29 @@ const Register = () => {
               {showPassword ? <Visibility /> : <VisibilityOff />}
             </span>
           </div>
-          <input style={{ display: "none" }} type="file" id="file" accept='image/*' />
+          <input style={{ display: "none" }} type="file" id="file" accept='image/*' onChange={(e) => setFile(e.target.files[0])} />
           <label htmlFor='file'>
-            <img src={Add} alt="" />
-            <span>Add an Avatar</span>
+            {imagePreview ? (
+              <>
+                <img src={Add} alt="" className='addPhoto' />
+                <Avatar className="avatarPreview" src={imagePreview} alt='Avatar' />
+                <span> preview your avatar </span>
+                <Tooltip title="Clear">
+                <Clear className='addPhoto' onClick={(e) => {
+                    e.preventDefault()
+                    setFile("");
+                    setImagePreview("")
+                  }} />
+                </Tooltip> 
+              </>
+
+            ) : (
+              <>
+                <img src={Add} alt="" className='img' />
+                <span>Add an Avatar</span>
+              </>
+
+            )}
           </label>
           <button>Sign up</button>
           {loading && <Alert severity="info" sx={{ width: "250px" }}>Uploading and compressing the image, please wait...</Alert>}

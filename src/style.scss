@@ -120,15 +120,30 @@ body {
 
       label {
         display: flex;
+        width: fit-content ;
         align-items: center;
         gap: 10px;
         color: white;
         font-size: 12px;
         cursor: pointer;
 
-        img {
+        .addPhoto{
+          display: none;
+        }
+
+        .img {
           width: 32px;
         }
+        &:hover{
+          opacity: 0.7;
+          .addPhoto{
+            display: block;
+            width: 32px;
+          }
+          .avatarPreview{
+            display: none;
+          }
+      }
       }
     }
 
@@ -322,7 +337,6 @@ body {
         .searchForm {
           padding: 10px;
 
-          ;
 
           .input {
             background-color: white;
