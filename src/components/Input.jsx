@@ -8,7 +8,8 @@ import { db, storage } from '../firebase';
 import { v4 as uuid } from 'uuid';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import LinearDeterminate from './mui/LinearDeterminate';
-import { Alert } from '@mui/material';
+import { Alert, Badge, IconButton } from '@mui/material';
+import { Clear } from '@mui/icons-material';
 
 
 const Input = () => {
@@ -34,6 +35,12 @@ const Input = () => {
         setIsPlaying(false);
       });
     }
+  };
+
+  const handleClearFile = (e) => {
+    e.preventDefault()
+    setImg(null);
+    setVideo(null);
   };
 
   const handleKey = (e) => {
@@ -169,8 +176,21 @@ const Input = () => {
             <img src={Attach} alt="" />
           </label>
           <label htmlFor='file'>
-            <img src={Img} alt="" />
+            {img || video ? (
+            <Badge
+              badgeContent={
+                <IconButton style={{backgroundColor:"transparent", color:"black"}} onClick={handleClearFile}>
+                <Clear fontSize='small'  />
+                </IconButton>
+              }
+            >
+              <img src={Img} alt="" />
+            </Badge>
+          ) :             
+          <img src={Img} alt="" />
+        }
           </label>
+          
           <button onClick={handleSend} id="send" disabled={uploading}>Send</button>
         </div>
       </div>
