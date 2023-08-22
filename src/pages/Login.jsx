@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { linkWithPopup, linkWithRedirect, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { linkWithRedirect, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, db, googleProvider } from '../firebase'
 import { useNavigate, Link } from 'react-router-dom'
 import { Alert, IconButton } from '@mui/material';

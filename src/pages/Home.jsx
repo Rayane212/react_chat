@@ -122,7 +122,7 @@ const Home = () => {
         {data.displayFriends ? <Friends /> : <Chat />}
       </div>
       {currentUser && showEmailVerificationModal && !currentUser.emailVerified &&
-        (<Modal open={true} >
+      (<Modal open={showEmailVerificationModal} onClose={handleCloseModal}>
       <Box sx={style}>
           <Typography variant="h6" component="h2" gutterBottom>
             Email Verification Required
