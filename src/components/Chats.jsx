@@ -1,9 +1,9 @@
-import { collection, doc, onSnapshot, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, onSnapshot, updateDoc } from 'firebase/firestore';
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { auth, db } from '../firebase';
 import { AuthContext } from '../context/AuthContext';
 import { ChatContext } from '../context/ChatContext';
-import { Avatar, Tooltip } from '@mui/material';
+import { Avatar, Backdrop, CircularProgress, Tooltip } from '@mui/material';
 import { signOut } from 'firebase/auth';
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 import StyledBadge from './mui/StyledBadge';
@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Chats = () => {
     const [interact, setInteract] = useState(false)
+    const [loading, setLoading] = useState(true);
     const [chats, setChats] = useState([]);
     const [onlineUsers, setOnlineUsers] = useState({});
     const { currentUser } = useContext(AuthContext)
@@ -39,15 +40,25 @@ const Chats = () => {
     }, [interact, newMessageSound]);
 
     useEffect(() => {
-        const getChats = () => {
-            const unsub = onSnapshot(doc(db, "userChats", currentUser.uid), (doc) => {
-                setChats(doc.data());
-            });
-            return () => {
-                unsub();
-            };
+        const getChats = async () => {
+            try {
+                const docRef = doc(db, "userChats", currentUser.uid);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    setChats(docSnap.data());
+                }
+
+                setLoading(false);
+            } catch (error) {
+                console.error("Error fetching chats:", error);
+                setLoading(false);
+            }
         };
-        currentUser.uid && getChats();
+
+        if (currentUser.uid) {
+            getChats();
+        }
     }, [currentUser.uid]);
 
 
@@ -173,48 +184,56 @@ const Chats = () => {
 
     return (
         <div className='chats'>
-            {Object.entries(chats)
-                ?.sort(sortChats)
-                .map(([chatId, chat]) => (
-                    <Tooltip title={chat.userInfo.displayName + " (" + (onlineUsers[chat.userInfo.uid]?.online) + ")"} key={chatId} arrow>
-                        <div
-                            className={`userChat ${chat.lastMessage?.unread ? 'new-message' : ''}`}
-                            onClick={() => handleSelect(chatId, chat.userInfo)}
-                        >
-                            <>
-                                <StyledBadge
-                                    overlap="circular"
-                                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                                    variant="dot"
-                                    mode={onlineUsers[chat.userInfo.uid]?.online}>
+            {loading ? (
+                <Backdrop
+                    sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                    open={loading}
+                >
+                    <CircularProgress color="inherit" />
+                </Backdrop>
+            ) :
+                (Object.entries(chats)
+                    ?.sort(sortChats)
+                    .map(([chatId, chat]) => (
+                        <Tooltip title={chat.userInfo.displayName + " (" + (onlineUsers[chat.userInfo.uid]?.online) + ")"} key={chatId} arrow>
+                            <div
+                                className={`userChat ${chat.lastMessage?.unread ? 'new-message' : ''}`}
+                                onClick={() => handleSelect(chatId, chat.userInfo)}
+                            >
+                                <>
                                     <StyledBadge
-                                        color="error"
                                         overlap="circular"
-                                        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                                         variant="dot"
-                                        mode={"newMessage"}
-                                        invisible={!chat.lastMessage?.unread}>
+                                        mode={onlineUsers[chat.userInfo.uid]?.online}>
+                                        <StyledBadge
+                                            color="error"
+                                            overlap="circular"
+                                            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                                            variant="dot"
+                                            mode={"newMessage"}
+                                            invisible={!chat.lastMessage?.unread}>
 
-                                        <Avatar
-                                            className='img'
-                                            src={chat.userInfo.photoURL}
-                                            alt={chat.userInfo.displayName}
-                                        />
+                                            <Avatar
+                                                className='img'
+                                                src={chat.userInfo.photoURL}
+                                                alt={chat.userInfo.displayName}
+                                            />
+                                        </StyledBadge>
                                     </StyledBadge>
-                                </StyledBadge>
-                            </>
+                                </>
 
 
-                            <div className='userChatInfo'>
-                                <span>{chat.userInfo.displayName}</span>
-                                <p>{chat.lastMessage?.text}</p>
+                                <div className='userChatInfo'>
+                                    <span>{chat.userInfo.displayName}</span>
+                                    <p>{chat.lastMessage?.text}</p>
+                                </div>
+                                <div className='times'>
+                                    <p>{formatElapsedTime(chat.date)}</p>
+                                </div>
                             </div>
-                            <div className='times'>
-                                <p>{formatElapsedTime(chat.date)}</p>
-                            </div>
-                        </div>
-                    </Tooltip>
-                ))}
+                        </Tooltip>
+                    )))}
             <div className='logoutIcon'>
                 <Tooltip title="logout" arrow>
                     <PowerSettingsNewIcon onClick={() => handleSignOut()} />

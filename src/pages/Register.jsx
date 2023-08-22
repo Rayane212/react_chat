@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Add from '../img/addAvatar.png';
-import { createUserWithEmailAndPassword, updateProfile , sendEmailVerification } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from "firebase/auth";
 import { auth, storage, db } from "../firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { collection, doc, setDoc, updateDoc } from "firebase/firestore";
@@ -61,6 +61,7 @@ const Register = () => {
               displayName,
               email,
               phoneNumber,
+              googleLinked: false,
               online: true,
               photoURL: downloadURL,
             });
@@ -93,10 +94,10 @@ const Register = () => {
         <span className='logo'>React Chat</span>
         <span className='title'>Register</span>
         <form onSubmit={handleSubmit}>
-          <input type="text" placeholder='Username' required/>
-          <input type="email" placeholder="Email" id="email"  required />
+          <input type="text" placeholder='Username' required />
+          <input type="email" placeholder="Email" id="email" required />
           <input type="tel" placeholder="+33612536545" id="tel" required />
-      <div className="passwordInput">
+          <div className="passwordInput">
             <input type={showPassword ? "text" : "password"} placeholder="Password" name="password" id="password" autoComplete="current-password" required />
             <span
               className="passwordIcon"
@@ -113,12 +114,12 @@ const Register = () => {
                 <Avatar className="avatarPreview" src={imagePreview} alt='Avatar' />
                 <span> preview your avatar </span>
                 <Tooltip title="Clear">
-                <Clear  onClick={(e) => {
+                  <Clear onClick={(e) => {
                     e.preventDefault()
                     setFile("");
                     setImagePreview("")
                   }} />
-                </Tooltip> 
+                </Tooltip>
               </>
 
             ) : (
