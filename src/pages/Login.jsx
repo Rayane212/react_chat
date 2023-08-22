@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { linkWithRedirect, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { deleteUser, fetchSignInMethodsForEmail, getAuth, linkWithCredential, linkWithRedirect, signInWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/auth';
 import { auth, db, googleProvider } from '../firebase'
 import { useNavigate, Link } from 'react-router-dom'
 import { Alert, IconButton } from '@mui/material';
@@ -9,62 +9,42 @@ import GoogleIcon from '@mui/icons-material/Google';
 
 const Login = () => {
     const [err, setErr] = useState("");
+    const [msg, setMsg] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate()
 
     const handleSignInWithGoogle = async () => {
         try {
+            console.log(auth)
             const res = await signInWithPopup(auth, googleProvider);
 
-            const userRef = doc(db, "users", res.user.uid);
-            const userSnap = await getDoc(userRef);
+            const email = res.user.email;
+            const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+            console.log(signInMethods)
+            console.log(signInMethods.includes("google.com"))
 
-            if (userSnap.exists() && !userSnap.data().googleLinked) {
-                await linkGoogleAccount(res.user.uid);
-            } else if (!userSnap.exists()) {
-                await createNewUser(res.user);
+            const userRef = collection(db, "users");
+            const userDoc = await getDoc(doc(userRef, email));
+
+            if (userDoc.exists() && userDoc.data().googleLinked) {
+                navigate("/login");
+                setMsg("Sign in and link your Google account")
+                setErr("")
+            } else {
+                if (signInMethods.includes("google.com")) {
+                    await deleteUser(res.user)
+                }
+                setErr("User not found or not linked");
             }
-
-            navigate("/");
 
         } catch (error) {
             console.error("Error signing in with Google:", error);
         }
     };
 
-    const linkGoogleAccount = async (uid) => {
-        try {
-            await linkWithRedirect(auth.currentUser, googleProvider);
-            await updateDoc(doc(db, "users", uid), { googleLinked: true });
 
-            const userDoc = await getDoc(doc(db, "users", uid));
-            const userData = userDoc.data();
 
-            // Update photoURL only if it's not set from before
-            if (!userData.photoURL && auth.currentUser.photoURL) {
-                await updateDoc(doc(db, "users", uid), { photoURL: auth.currentUser.photoURL });
-            }
-        } catch (error) {
-            console.error("Error linking Google account:", error);
-        }
-    };
 
-    const createNewUser = async (user) => {
-        try {
-            const { uid, displayName, email, photoURL } = user;
-            await setDoc(doc(db, "users", uid), {
-                uid,
-                displayName,
-                email,
-                photoURL,
-                googleLinked: true,
-                online: true,
-            });
-            await setDoc(doc(db, "userChats", uid), {});
-        } catch (error) {
-            console.error("Error creating new user:", error);
-        }
-    };
     const handleSubmit = async (e) => {
         e.preventDefault();
         const email = e.target[0].value;
@@ -108,22 +88,24 @@ const Login = () => {
                             {showPassword ? <Visibility /> : <VisibilityOff />}
                         </span>
                     </div>
-                    <div style={{margin:'0 auto'}}>
-                    <IconButton sx={{width:'fit-content', marginRight:'5px'}} onClick={handleSignInWithGoogle}>
-                        <GoogleIcon/>
-                    </IconButton>
-                    <IconButton sx={{width:'fit-content', marginLeft:'5px'}} onClick={handleSignInWithGoogle}>
-                        <FacebookOutlined/>
-                    </IconButton>
+                    <div style={{ margin: '0 auto' }}>
+                        <IconButton sx={{ width: 'fit-content', marginRight: '5px' }} onClick={handleSignInWithGoogle}>
+                            <GoogleIcon />
+                        </IconButton>
+                        <IconButton sx={{ width: 'fit-content', marginLeft: '5px' }} onClick={handleSignInWithGoogle}>
+                            <FacebookOutlined />
+                        </IconButton>
                     </div>
                     <button>Sign in</button>
                     {err !== "" && <Alert className="" severity="error" >{err}</Alert>}
+                    {msg !== "" && <Alert className="" severity="infos" >{msg}</Alert>}
+
                 </form>
-                <div style={{textAlign:"center"}}>
-                     {/* <p>Forgot your password ?</p> */}
-                <p>You don't have an account? <Link to="/register">Register</Link> </p>
+                <div style={{ textAlign: "center" }}>
+                    {/* <p>Forgot your password ?</p> */}
+                    <p>You don't have an account? <Link to="/register">Register</Link> </p>
                 </div>
-               
+
 
             </div>
         </div>
