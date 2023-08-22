@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import Add from '../img/addAvatar.png';
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile , sendEmailVerification } from "firebase/auth";
 import { auth, storage, db } from "../firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { collection, doc, setDoc, updateDoc } from "firebase/firestore";
 import { useNavigate, Link } from 'react-router-dom';
 import { Alert, Avatar, Tooltip } from '@mui/material';
 import { Clear, Visibility, VisibilityOff } from '@mui/icons-material';
+
 
 const Register = () => {
   const [err, setErr] = useState("");
@@ -15,6 +16,7 @@ const Register = () => {
   const [file, setFile] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const navigate = useNavigate();
+
 
   useEffect(() => {
     if (file) {
@@ -33,10 +35,14 @@ const Register = () => {
     e.preventDefault();
     const displayName = e.target[0].value;
     const email = e.target[1].value;
-    const password = e.target[2].value;
+    const phoneNumber = e.target[2].value;
+    const password = e.target[3].value;
 
     try {
       const res = await createUserWithEmailAndPassword(auth, email, password);
+
+      await sendEmailVerification(res.user);
+
       const date = new Date().getTime();
       const storageRef = ref(storage, `img/avatars/${displayName + date}`);
 
@@ -52,6 +58,7 @@ const Register = () => {
               uid: res.user.uid,
               displayName,
               email,
+              phoneNumber: phoneNumber,
               online: true,
               photoURL: downloadURL,
             });
@@ -84,10 +91,11 @@ const Register = () => {
         <span className='logo'>React Chat</span>
         <span className='title'>Register</span>
         <form onSubmit={handleSubmit}>
-          <input type="text" placeholder='display name' />
-          <input type="email" placeholder="email" id="email" required />
-          <div className="passwordInput">
-            <input type={showPassword ? "text" : "password"} placeholder="password" name="password" id="password" autoComplete="current-password" required />
+          <input type="text" placeholder='Username' required/>
+          <input type="email" placeholder="Email" id="email"  required />
+          <input type="tel" placeholder="+33612536545" id="tel" required />
+      <div className="passwordInput">
+            <input type={showPassword ? "text" : "password"} placeholder="Password" name="password" id="password" autoComplete="current-password" required />
             <span
               className="passwordIcon"
               onClick={() => setShowPassword(!showPassword)}
@@ -103,7 +111,7 @@ const Register = () => {
                 <Avatar className="avatarPreview" src={imagePreview} alt='Avatar' />
                 <span> preview your avatar </span>
                 <Tooltip title="Clear">
-                <Clear className='addPhoto' onClick={(e) => {
+                <Clear  onClick={(e) => {
                     e.preventDefault()
                     setFile("");
                     setImagePreview("")
