@@ -46,11 +46,13 @@ const Register = () => {
       const date = new Date().getTime();
       const storageRef = ref(storage, `img/avatars/${displayName + date}`);
 
+
       await uploadBytesResumable(storageRef, file).then(async () => {
         getDownloadURL(storageRef).then(async (downloadURL) => {
           try {
             await updateProfile(res.user, {
               displayName,
+              phoneNumber,
               photoURL: downloadURL,
             });
 
@@ -58,7 +60,7 @@ const Register = () => {
               uid: res.user.uid,
               displayName,
               email,
-              phoneNumber: phoneNumber,
+              phoneNumber,
               online: true,
               photoURL: downloadURL,
             });
