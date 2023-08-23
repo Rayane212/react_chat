@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { deleteUser, fetchSignInMethodsForEmail, getAuth, linkWithCredential, linkWithRedirect, signInWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, db, googleProvider } from '../firebase'
 import { useNavigate, Link } from 'react-router-dom'
 import { Alert, IconButton } from '@mui/material';
@@ -9,36 +9,46 @@ import GoogleIcon from '@mui/icons-material/Google';
 
 const Login = () => {
     const [err, setErr] = useState("");
-    const [msg, setMsg] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate()
 
     const handleSignInWithGoogle = async () => {
         try {
-            console.log(auth)
             const res = await signInWithPopup(auth, googleProvider);
 
-            const email = res.user.email;
-            const signInMethods = await fetchSignInMethodsForEmail(auth, email);
-            console.log(signInMethods)
-            console.log(signInMethods.includes("google.com"))
+            const userRef = doc(db, "users", res.user.email);
+            const userSnap = await getDoc(userRef);
 
-            const userRef = collection(db, "users");
-            const userDoc = await getDoc(doc(userRef, email));
+            console.log(userSnap)
 
-            if (userDoc.exists() && userDoc.data().googleLinked) {
-                navigate("/login");
-                setMsg("Sign in and link your Google account")
-                setErr("")
-            } else {
-                if (signInMethods.includes("google.com")) {
-                    await deleteUser(res.user)
-                }
-                setErr("User not found or not linked");
+             if (!userSnap.googleLinked) {
+                await createNewUser(res.user);
             }
+
+            navigate("/");
 
         } catch (error) {
             console.error("Error signing in with Google:", error);
+        }
+    };
+
+   
+
+    const createNewUser = async (user) => {
+        try {
+            const { uid } = user;
+            await updateDoc(doc(db, "users", uid), {
+                googleLinked: true,
+                online: true,
+            });
+            const userChats = doc(db, "userChats", uid )
+            console.log(getDoc(userChats))
+            if (getDoc(userChats) === null ){
+                await setDoc(doc(db, "userChats", uid), {});
+            }
+           
+        } catch (error) {
+            console.error("Error creating new user:", error);
         }
     };
 
@@ -98,7 +108,6 @@ const Login = () => {
                     </div>
                     <button>Sign in</button>
                     {err !== "" && <Alert className="" severity="error" >{err}</Alert>}
-                    {msg !== "" && <Alert className="" severity="infos" >{msg}</Alert>}
 
                 </form>
                 <div style={{ textAlign: "center" }}>
