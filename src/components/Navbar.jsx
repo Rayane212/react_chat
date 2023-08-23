@@ -7,11 +7,23 @@ import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import { ChatContext } from '../context/ChatContext';
 import { Avatar, Badge, Tooltip } from '@mui/material';
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
+import Profile from './Profile';
 
 const Navbar = () => {
     const { currentUser } = useContext(AuthContext);
     const { dispatch } = useContext(ChatContext);
     const [unreadCount, setUnreadCount] = useState(0);
+
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+
+    const handleOpenProfileModal = () => {
+        setIsProfileOpen(true);
+    };
+
+    const handleCloseProfileModal = () => {
+        setIsProfileOpen(false);
+    };
 
 
 
@@ -76,7 +88,8 @@ const Navbar = () => {
 
             </div>
             <div className="user">
-                <Avatar className="img" src={currentUser.photoURL} alt={currentUser.displayName} />
+                <Avatar className="img" src={currentUser.photoURL} alt={currentUser.displayName} onClick={handleOpenProfileModal} />
+                <Profile isOpen={isProfileOpen} onClose={handleCloseProfileModal}/>
                 <span>{currentUser.displayName}</span>
                 <Tooltip title="logout" arrow>
                     <PowerSettingsNewIcon className='logout' onClick={() => handleSignOut()} />
