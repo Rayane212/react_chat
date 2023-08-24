@@ -1,30 +1,18 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { signOut } from 'firebase/auth';
-import { auth, db } from '../firebase';
+import {  db } from '../firebase';
 import { AuthContext } from '../context/AuthContext';
-import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import { ChatContext } from '../context/ChatContext';
 import { Avatar, Badge, Tooltip } from '@mui/material';
-import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
-import Profile from './Profile';
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import { doc, onSnapshot } from 'firebase/firestore';
+import MenuProfile from './mui/MenuProfile';
 
 const Navbar = () => {
     const { currentUser } = useContext(AuthContext);
     const { dispatch } = useContext(ChatContext);
     const [unreadCount, setUnreadCount] = useState(0);
 
-    const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-
-    const handleOpenProfileModal = () => {
-        setIsProfileOpen(true);
-    };
-
-    const handleCloseProfileModal = () => {
-        setIsProfileOpen(false);
-    };
 
 
 
@@ -63,12 +51,7 @@ const Navbar = () => {
     const handleFriends = () => {
         dispatch({ type: "DISPLAY_FRIENDS" });
     }
-    const handleSignOut = async () => {
-        await signOut(auth);
-        await updateDoc(doc(db, "users", currentUser.uid), { online: "offline" });
-    };
-
-
+ 
     return (
         <div className='navbar'>
             <div className='logoMsg'>
@@ -89,22 +72,13 @@ const Navbar = () => {
 
             </div>
             <div className="user">
-                <Tooltip title="Profile">
-                    <Avatar className="img" src={currentUser.photoURL} alt={currentUser.displayName} onClick={handleOpenProfileModal} />
-                </Tooltip>
-                <Profile isOpen={isProfileOpen} onClose={handleCloseProfileModal}/>
+                <Avatar className="img" src={currentUser.photoURL} alt={currentUser.displayName}/>
+
                 <span>{currentUser.displayName}</span>
-                <div className='icons'>
-                <Tooltip title="Profile">
-                    <ManageAccountsIcon className='profile' onClick={handleOpenProfileModal} />
-                </Tooltip>
-                <Tooltip title="logout" arrow>
-                    <PowerSettingsNewIcon className='logout' onClick={() => handleSignOut()} />
-                </Tooltip>
+                
+                <MenuProfile  currentUser={currentUser}/>
+                
                 </div>
-            </div>
-
-
         </div>
     );
 };

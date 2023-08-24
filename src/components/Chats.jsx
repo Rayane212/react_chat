@@ -1,22 +1,18 @@
 import { collection, doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { auth, db } from '../firebase';
+import { db } from '../firebase';
 import { AuthContext } from '../context/AuthContext';
 import { ChatContext } from '../context/ChatContext';
 import { Avatar, Tooltip } from '@mui/material';
-import { signOut } from 'firebase/auth';
-import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 import StyledBadge from './mui/StyledBadge';
 import Notif from '../img/notification.png';
 import { useNavigate } from 'react-router-dom';
-import Profile from './Profile';
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import MenuProfile from './mui/MenuProfile';
 
 
 
 const Chats = () => {
     const [interact, setInteract] = useState(false);
-    const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [chats, setChats] = useState([]);
     const [onlineUsers, setOnlineUsers] = useState({});
     const { currentUser } = useContext(AuthContext)
@@ -158,10 +154,6 @@ const Chats = () => {
         }
     };
 
-    const handleSignOut = async () => {
-        await signOut(auth);
-        await updateDoc(doc(db, "users", currentUser.uid), { online: "offline" });
-    };
 
     const sortChats = (a, b) => {
         if (b[1]?.lastMessage?.unread && !a[1]?.lastMessage?.unread) {
@@ -171,14 +163,6 @@ const Chats = () => {
         }
 
         return b[1].date - a[1].date;
-    };
-
-    const handleOpenProfileModal = () => {
-        setIsProfileOpen(true);
-    };
-
-    const handleCloseProfileModal = () => {
-        setIsProfileOpen(false);
     };
 
 
@@ -227,13 +211,8 @@ const Chats = () => {
                     </Tooltip>
                 ))}
             <div className='logoutIcon'>
-                <Tooltip title="Profile">
-                <ManageAccountsIcon  onClick={handleOpenProfileModal} />
-                </Tooltip>
-                <Profile isOpen={isProfileOpen} onClose={handleCloseProfileModal}/>
-                <Tooltip title="Logout" arrow>
-                    <PowerSettingsNewIcon onClick={() => handleSignOut()} />
-                </Tooltip>
+                    <MenuProfile currentUser={currentUser}/>
+               
             </div>
             <audio style={{ display: "none" }} src={newMessageSound} allow="autoplay" />
         </div>

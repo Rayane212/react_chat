@@ -1,25 +1,43 @@
-import { Alert, Avatar, Backdrop, Box, Button, CircularProgress, Divider, IconButton, Modal, TextField, Typography } from '@mui/material';
-import { Close, Edit, LinkOff } from '@mui/icons-material';
-import React, { useContext, useState } from 'react';
+import { Alert, Avatar, Backdrop, Box, Button, CircularProgress, Divider, IconButton, InputAdornment, Modal, Snackbar, TextField, Typography } from '@mui/material';
+import { Close, Edit, LinkOff, Visibility, VisibilityOff } from '@mui/icons-material';
+import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { collection, doc, updateDoc } from 'firebase/firestore';
 import { auth, db, googleProvider, storage } from '../firebase';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
-import { linkWithPopup, sendEmailVerification, updateProfile } from 'firebase/auth';
+import { EmailAuthProvider, linkWithPopup, reauthenticateWithCredential, sendEmailVerification, updateEmail, updatePassword, updateProfile } from 'firebase/auth';
 import SaveAsIcon from '@mui/icons-material/SaveAs';
 import GoogleIcon from '@mui/icons-material/Google';
+import ReauthenticateModal from './ReauthenticateModal';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const Profile = ({ isOpen, onClose }) => {
     const { currentUser } = useContext(AuthContext);
     const [err, setErr] = useState("");
+    const [isReauthModalOpen, setIsReauthModalOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
+    const [isEmailSent, setIsEmailSent] = useState(false);
+    const [isResendDisabled, setIsResendDisabled] = useState(false);
+    const [resendTimeout, setResendTimeout] = useState(0);
     const [displayName, setDisplayName] = useState(currentUser.displayName);
     const [email, setEmail] = useState(currentUser.email);
-    const [phoneNumber, setPhoneNumber] = useState(currentUser.phoneNumber || "");
+    // const [phoneNumber, setPhoneNumber] = useState(currentUser.phoneNumber || ""); 
+    const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [selectedImage, setSelectedImage] = useState("");
 
+    useEffect(() => {
+        if (isResendDisabled) {
+            let timer = setInterval(() => {
+                setResendTimeout((prevTimeout) => prevTimeout - 1000);
+            }, 1000);
 
+            return () => {
+                clearInterval(timer);
+            };
+        }
+    }, [isResendDisabled]);
 
 
     const handleSubmit = async (e) => {
@@ -32,23 +50,15 @@ const Profile = ({ isOpen, onClose }) => {
                 getDownloadURL(storageRef).then(async (downloadURL) => {
                     try {
                         await updateProfile(currentUser, {
-                            displayName,
-                            email,
-                            phoneNumber,
                             photoURL: downloadURL,
                         });
 
                         await updateDoc(doc(collection(db, "users"), currentUser.uid), {
-                            displayName: displayName,
-                            email: email,
-                            phoneNumber: phoneNumber,
                             photoURL: downloadURL,
                         });
 
                     } catch (err) {
                         setErr("Something went wrong");
-                    } finally {
-                        setLoading(false);
                     }
                 });
             });
@@ -56,14 +66,10 @@ const Profile = ({ isOpen, onClose }) => {
             try {
                 await updateProfile(currentUser, {
                     displayName,
-                    email,
-                    phoneNumber,
                 });
 
                 await updateDoc(doc(collection(db, "users"), currentUser.uid), {
                     displayName: displayName,
-                    email: email,
-                    phoneNumber: phoneNumber,
                 });
 
             } catch (err) {
@@ -73,28 +79,89 @@ const Profile = ({ isOpen, onClose }) => {
             }
         }
 
+        if (email !== currentUser.email) {
+            setIsReauthModalOpen(true);
+        } else {
+            setLoading(false);
+            setIsEditMode(false);
+        }
 
-        setIsEditMode(false);
-        setSelectedImage(null);
+        if (password !== "") {
+            setIsReauthModalOpen(true);
+        } else {
+            setLoading(false);
+            setIsEditMode(false);
+        }
     };
 
-    const handleLinkGoogle = async () =>{
+    const handleReauthenticate = async (password) => {
+        const credential = EmailAuthProvider.credential(currentUser.email, password);
+
+        try {
+
+            await reauthenticateWithCredential(auth.currentUser, credential);
+
+            if (email !== currentUser.email) {
+                await updateEmail(currentUser, email).then(async () => {
+                    console.log("Email updated")
+                }).catch((error) => {
+                    console.log(error)
+                })
+                await updateDoc(doc(collection(db, "users"), currentUser.uid), {
+                    email: email,
+                });
+                await sendEmailVerification(currentUser);
+            }
+
+            if (password !== "") {
+                await updatePassword(currentUser, password).then(() => {
+                    console.log("Password updated")
+                }).catch((error) => {
+                    console.log(error)
+                })
+            }
+
+            
+            setLoading(false);
+            setIsEditMode(false);
+            setIsReauthModalOpen(false);
+        } catch (error) {
+            console.error("Error reauthenticating:", error);
+            setLoading(false);
+            setIsReauthModalOpen(false);
+        }
+
+    };
+
+    const handleLinkGoogle = async () => {
         try {
             await linkWithPopup(auth.currentUser, googleProvider)
-            
+
         } catch (error) {
             console.error(error)
         }
     }
 
-    const handleVerifyMail = () =>{
+    const handleVerifyMail = () => {
         try {
             sendEmailVerification(currentUser)
+            setIsEmailSent(true);
+            setIsResendDisabled(true);
+            setResendTimeout(60000);
+            setTimeout(() => {
+                setIsResendDisabled(false);
+            }, 60000);
         } catch (error) {
-            console.error(error)
-
+            setErr("Please try later")
         }
     }
+
+    const handleTogglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
+    const handlePasswordChange = (e) => {
+        setPassword(e.target.value);
+    };
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -113,6 +180,15 @@ const Profile = ({ isOpen, onClose }) => {
         setIsEditMode(false);
     };
 
+  
+    const handleClose = (e, reason) => {
+      if (reason === 'clickaway') {
+        return;
+      }
+  
+      setIsEmailSent(false);
+    };
+
     const style = {
         position: 'absolute',
         top: '50%',
@@ -123,6 +199,11 @@ const Profile = ({ isOpen, onClose }) => {
             width: '80%',
             margin: '0 auto',
         },
+        '@media screen and (max-height: 700px) and (orientation: landscape)': {
+            maxHeight: '80%', 
+            overflow: 'scroll',
+          },
+        overflow:'hidden',
         bgcolor: 'background.paper',
         border: '1px solid #000',
         boxShadow: 24,
@@ -134,7 +215,7 @@ const Profile = ({ isOpen, onClose }) => {
     return (
         <Modal open={isOpen} onClose={handleCloseModal}>
             <Box sx={style}>
-                {loading && !isEditMode && (
+                {loading  && (
                     <Backdrop
                         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
                         open={loading}
@@ -145,13 +226,22 @@ const Profile = ({ isOpen, onClose }) => {
                 <IconButton sx={{ position: 'absolute', top: 0, right: 0 }} onClick={handleCloseModal}>
                     <Close />
                 </IconButton>
+
+                {isEditMode && 
+                <IconButton sx={{ position: 'absolute', top: 0, left: 0 }} onClick={handleCloseEdit}>
+                    <ArrowBackIcon />
+                </IconButton>
+                }
+
                 {!isEditMode && (<Avatar sx={{ width: 100, height: 100, margin: '0 auto', mb: 2 }} src={currentUser.photoURL} alt={currentUser.displayName} />)}
 
                 {isEditMode ? (
+                    <div>
                     <form onSubmit={handleSubmit}>
                         <label htmlFor="avatar-upload" >
-                            <Avatar sx={{ width: 100, height: 100, margin: '0 auto', mb: 2, cursor: isEditMode ? 'pointer' : 'default' }} src={selectedImage ? URL.createObjectURL(selectedImage) : currentUser.photoURL}
+                                <Avatar sx={{ width: 100, height: 100, margin: '0 auto', mb: 2, cursor: isEditMode ? 'pointer' : 'default' }} src={selectedImage ? URL.createObjectURL(selectedImage) : currentUser.photoURL}
                                 alt={currentUser.displayName} />
+                            
                             <input
                                 id="avatar-upload"
                                 type="file"
@@ -178,29 +268,49 @@ const Profile = ({ isOpen, onClose }) => {
                             variant="outlined"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            sx={{ mb: 2 }}
                         />
 
 
-                        <TextField
+                        {/* <TextField
                             fullWidth
                             label="Phone number"
                             variant="outlined"
                             type='tel'
                             value={phoneNumber}
                             onChange={(e) => setPhoneNumber(e.target.value)}
-                            sx={{ mb: 2 }}
+                        /> */}
+
+                        <TextField
+                            fullWidth
+                            label="Password"
+                            type={showPassword ? 'text' : 'password'}
+                            value={password}
+                            onChange={handlePasswordChange}
+                            variant="outlined"
+                            margin="normal"
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            onClick={handleTogglePasswordVisibility}
+                                            edge="end"
+                                        >
+                                            {showPassword ? <Visibility /> : <VisibilityOff />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                            }}
                         />
 
                         <Button type="submit" variant="outlined" fullWidth sx={{ mt: 2 }}>
                             <SaveAsIcon sx={{ marginRight: "5px" }} /> Save
                         </Button>
-                        <Button variant="outlined" fullWidth sx={{ mt: 2 }} onClick={handleCloseEdit}>
-                            Exit
-                        </Button>
+        
                         {err && <Alert severity='error'>{err}</Alert>}
 
                     </form>
+                    </div>
+
                 ) : (
                     <>
                         <Typography variant="h6" align="center" gutterBottom>
@@ -216,15 +326,16 @@ const Profile = ({ isOpen, onClose }) => {
 
                 {!isEditMode &&
                     <Button variant="outlined" fullWidth onClick={handleOpenEdit} sx={{ mt: 2 }}>
-                        <Edit  sx={{ mr: 0.5}} /> modify
+                        <Edit sx={{ mr: 0.5 }} /> modify
                     </Button>}
 
 
                 <Divider sx={{ my: 2 }} />
 
                 {!currentUser.emailVerified ? (
-                    <Button variant="outlined" fullWidth onClick={handleVerifyMail}>
-                        Verify the mail
+                    <Button variant="outlined" fullWidth onClick={handleVerifyMail} disabled={isResendDisabled}>
+                         {isResendDisabled ? `Resend Email (${Math.ceil(resendTimeout / 1000)}s)` : 'Verify the email'}
+                        
                     </Button>)
                     :
                     (<Button variant="outlined" fullWidth disabled>
@@ -233,14 +344,33 @@ const Profile = ({ isOpen, onClose }) => {
                 }
 
                 {!currentUser.providerData || !currentUser.providerData.some((provider) => provider.providerId === 'google.com') ? (
-                    <Button variant="outlined" fullWidth sx={{mt:2}} onClick={handleLinkGoogle}>
-                        <GoogleIcon sx={{ mr: 0.5}} /> Link Google Account
+                    <Button variant="outlined" fullWidth sx={{ mt: 2 }} onClick={handleLinkGoogle}>
+                        <GoogleIcon sx={{ mr: 0.5 }} /> Link Google Account
                     </Button>
                 ) : (
                     <Button variant="outlined" fullWidth>
                         <LinkOff /> Google Account Linked
                     </Button>
                 )}
+
+                {isReauthModalOpen && (
+                    <ReauthenticateModal
+                        isOpen={isReauthModalOpen}
+                        onClose={() => setIsReauthModalOpen(false)}
+                        onReauthenticate={handleReauthenticate}
+                    />
+                )}
+                {isEmailSent && !isEditMode &&
+                <Snackbar  open={isEmailSent} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                }}  >
+                    <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+                    Email sent successfully. Please check your inbox.
+
+                    </Alert>
+                </Snackbar>
+                }
 
             </Box>
         </Modal>

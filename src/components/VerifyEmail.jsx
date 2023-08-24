@@ -8,7 +8,7 @@ import { auth, db } from '../firebase';
 
 
 
-const VerifyEmail = () => {
+const VerifyEmail = ({isOpen, isClose}) => {
     const [showEmailVerificationModal, setShowEmailVerificationModal] = useState(false);
     const [isEmailSent, setIsEmailSent] = useState(false);
     const [isResendDisabled, setIsResendDisabled] = useState(false);
@@ -97,7 +97,7 @@ const VerifyEmail = () => {
                     </Button>
                 )}
                 {isEmailSent && (
-                    <Alert severity="success" sx={{ mt: 2 }}>
+                    <Alert severity="success" sx={{ mt: 2 }} >
                         Email sent successfully. Please check your inbox.
                     </Alert>
                 )}

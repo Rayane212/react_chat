@@ -269,7 +269,6 @@ body {
 
           .img {
             object-fit: cover;
-            cursor: pointer;
 
             @include mobile_portrait() {
               display: none;
@@ -278,14 +277,17 @@ body {
               display: none;
             }
 
-            &:hover{
-              opacity: 0.5;
-              border: 1px solid white;
-            }
+           
           }
+          
           .icons{
             display: flex;
             gap: 5px;
+
+            .profile{
+              display: none;
+            }
+
             .logout {
               color: $text-color;
               margin: auto;
@@ -302,6 +304,7 @@ body {
                 bottom: 0;
                 left: 0;
                 right: 0;
+                
               }
               
               @include mobile_landscape() {
@@ -479,8 +482,7 @@ body {
         cursor: pointer;
 
         @include mobile_portrait() {
-          display: flex;
-          flex-direction: column;
+          display: block;
           position: absolute;
           align-items: center;
           margin-left: auto;
@@ -706,4 +708,12 @@ body {
       display: none;
     }
   }
+}
+
+.menu{
+  .iconbutton{
+    &:hover{
+      opacity: 0.5;
+    }
+  }      
 }
