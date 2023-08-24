@@ -8,6 +8,7 @@ import { ChatContext } from '../context/ChatContext';
 import { Avatar, Badge, Tooltip } from '@mui/material';
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import Profile from './Profile';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 
 const Navbar = () => {
     const { currentUser } = useContext(AuthContext);
@@ -89,13 +90,18 @@ const Navbar = () => {
             </div>
             <div className="user">
                 <Tooltip title="Profile">
-                <Avatar className="img" src={currentUser.photoURL} alt={currentUser.displayName} onClick={handleOpenProfileModal} />
+                    <Avatar className="img" src={currentUser.photoURL} alt={currentUser.displayName} onClick={handleOpenProfileModal} />
                 </Tooltip>
                 <Profile isOpen={isProfileOpen} onClose={handleCloseProfileModal}/>
                 <span>{currentUser.displayName}</span>
+                <div className='icons'>
+                <Tooltip title="Profile">
+                    <ManageAccountsIcon className='profile' onClick={handleOpenProfileModal} />
+                </Tooltip>
                 <Tooltip title="logout" arrow>
                     <PowerSettingsNewIcon className='logout' onClick={() => handleSignOut()} />
                 </Tooltip>
+                </div>
             </div>
 
 

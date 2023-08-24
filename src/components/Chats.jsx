@@ -9,11 +9,14 @@ import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 import StyledBadge from './mui/StyledBadge';
 import Notif from '../img/notification.png';
 import { useNavigate } from 'react-router-dom';
+import Profile from './Profile';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 
 
 
 const Chats = () => {
-    const [interact, setInteract] = useState(false)
+    const [interact, setInteract] = useState(false);
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [chats, setChats] = useState([]);
     const [onlineUsers, setOnlineUsers] = useState({});
     const { currentUser } = useContext(AuthContext)
@@ -25,7 +28,6 @@ const Chats = () => {
             'https://firebasestorage.googleapis.com/v0/b/react-chat-6ddfc.appspot.com/o/audio%2FNewMessage.mp3?alt=media&token=3a5bbd37-fa52-4ff6-a619-09f515ada47c'
         );
     }, []);
-
 
 
     const handlePlaySound = useCallback(() => {
@@ -171,6 +173,15 @@ const Chats = () => {
         return b[1].date - a[1].date;
     };
 
+    const handleOpenProfileModal = () => {
+        setIsProfileOpen(true);
+    };
+
+    const handleCloseProfileModal = () => {
+        setIsProfileOpen(false);
+    };
+
+
     return (
         <div className='chats'>
             {Object.entries(chats)
@@ -216,7 +227,11 @@ const Chats = () => {
                     </Tooltip>
                 ))}
             <div className='logoutIcon'>
-                <Tooltip title="logout" arrow>
+                <Tooltip title="Profile">
+                <ManageAccountsIcon  onClick={handleOpenProfileModal} />
+                </Tooltip>
+                <Profile isOpen={isProfileOpen} onClose={handleCloseProfileModal}/>
+                <Tooltip title="Logout" arrow>
                     <PowerSettingsNewIcon onClick={() => handleSignOut()} />
                 </Tooltip>
             </div>

@@ -283,32 +283,35 @@ body {
               border: 1px solid white;
             }
           }
-
-          .logout {
-            color: $text-color;
-            margin: auto;
-
-            cursor: pointer;
-
-            &:hover {
-              opacity: 0.5;
-            }
-
-            @include mobile_portrait() {
-              display: block;
-              position: absolute;
-              bottom: 0;
-              left: 0;
-              right: 0;
-            }
-            
-            @include mobile_landscape() {
-              display: block;
-              position: absolute;
-              top: 22px;
-              right: 10px;
+          .icons{
+            display: flex;
+            gap: 5px;
+            .logout {
+              color: $text-color;
+              margin: auto;
+  
+              cursor: pointer;
+  
+              &:hover {
+                opacity: 0.5;
+              }
+  
+              @include mobile_portrait() {
+                display: block;
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+              }
+              
+              @include mobile_landscape() {
+                display: block;
+                top: 22px;
+                right: 10px;
+              }
             }
           }
+          
 
         }
 
@@ -476,14 +479,21 @@ body {
         cursor: pointer;
 
         @include mobile_portrait() {
-          display: block;
+          display: flex;
+          flex-direction: column;
           position: absolute;
+          align-items: center;
           margin-left: auto;
           margin-right: auto;
+          margin-bottom: 10px;
+          gap: 5px;
           left: 0;
           right: 0;
           bottom: 0;
           text-align: center;
+
+      
+
         }
 
         &:hover {
