@@ -71,7 +71,7 @@ const Navbar = () => {
     return (
         <div className='navbar'>
             <div className='logoMsg'>
-                <Tooltip title="see all users" arrow>
+                <Tooltip title="See all users" arrow>
                     <div>
                         <Badge badgeContent={unreadCount} color="error" overlap="circular" size="smaill" anchorOrigin={{
                             vertical: 'top',
@@ -88,7 +88,9 @@ const Navbar = () => {
 
             </div>
             <div className="user">
+                <Tooltip title="Profile">
                 <Avatar className="img" src={currentUser.photoURL} alt={currentUser.displayName} onClick={handleOpenProfileModal} />
+                </Tooltip>
                 <Profile isOpen={isProfileOpen} onClose={handleCloseProfileModal}/>
                 <span>{currentUser.displayName}</span>
                 <Tooltip title="logout" arrow>

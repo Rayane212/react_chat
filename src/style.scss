@@ -269,12 +269,18 @@ body {
 
           .img {
             object-fit: cover;
+            cursor: pointer;
 
             @include mobile_portrait() {
               display: none;
             }
             @include mobile_landscape() {
               display: none;
+            }
+
+            &:hover{
+              opacity: 0.5;
+              border: 1px solid white;
             }
           }
 
