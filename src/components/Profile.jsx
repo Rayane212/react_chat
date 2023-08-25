@@ -5,7 +5,7 @@ import { AuthContext } from '../context/AuthContext';
 import { collection, doc, updateDoc } from 'firebase/firestore';
 import { auth, db, googleProvider, storage } from '../firebase';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
-import { EmailAuthProvider, linkWithPopup, reauthenticateWithCredential, sendEmailVerification, updateEmail, updatePassword, updateProfile } from 'firebase/auth';
+import { EmailAuthProvider, linkWithPopup, reauthenticateWithCredential, sendEmailVerification, unlink, updateEmail, updatePassword, updateProfile } from 'firebase/auth';
 import SaveAsIcon from '@mui/icons-material/SaveAs';
 import GoogleIcon from '@mui/icons-material/Google';
 import ReauthenticateModal from './ReauthenticateModal';
@@ -121,7 +121,7 @@ const Profile = ({ isOpen, onClose }) => {
                 })
             }
 
-            
+
             setLoading(false);
             setIsEditMode(false);
             setIsReauthModalOpen(false);
@@ -136,6 +136,15 @@ const Profile = ({ isOpen, onClose }) => {
     const handleLinkGoogle = async () => {
         try {
             await linkWithPopup(auth.currentUser, googleProvider)
+
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    const handleUnLinkGoogle = async () => {
+        try {
+            await unlink(auth.currentUser, 'google.com')
 
         } catch (error) {
             console.error(error)
@@ -180,13 +189,13 @@ const Profile = ({ isOpen, onClose }) => {
         setIsEditMode(false);
     };
 
-  
+
     const handleClose = (e, reason) => {
-      if (reason === 'clickaway') {
-        return;
-      }
-  
-      setIsEmailSent(false);
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setIsEmailSent(false);
     };
 
     const style = {
@@ -200,10 +209,10 @@ const Profile = ({ isOpen, onClose }) => {
             margin: '0 auto',
         },
         '@media screen and (max-height: 700px) and (orientation: landscape)': {
-            maxHeight: '80%', 
+            maxHeight: '80%',
             overflow: 'scroll',
-          },
-        overflow:'hidden',
+        },
+        overflow: 'hidden',
         bgcolor: 'background.paper',
         border: '1px solid #000',
         boxShadow: 24,
@@ -215,7 +224,7 @@ const Profile = ({ isOpen, onClose }) => {
     return (
         <Modal open={isOpen} onClose={handleCloseModal}>
             <Box sx={style}>
-                {loading  && (
+                {loading && (
                     <Backdrop
                         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
                         open={loading}
@@ -227,51 +236,51 @@ const Profile = ({ isOpen, onClose }) => {
                     <Close />
                 </IconButton>
 
-                {isEditMode && 
-                <IconButton sx={{ position: 'absolute', top: 0, left: 0 }} onClick={handleCloseEdit}>
-                    <ArrowBackIcon />
-                </IconButton>
+                {isEditMode &&
+                    <IconButton sx={{ position: 'absolute', top: 0, left: 0 }} onClick={handleCloseEdit}>
+                        <ArrowBackIcon />
+                    </IconButton>
                 }
 
                 {!isEditMode && (<Avatar sx={{ width: 100, height: 100, margin: '0 auto', mb: 2 }} src={currentUser.photoURL} alt={currentUser.displayName} />)}
 
                 {isEditMode ? (
                     <div>
-                    <form onSubmit={handleSubmit}>
-                        <label htmlFor="avatar-upload" >
+                        <form onSubmit={handleSubmit}>
+                            <label htmlFor="avatar-upload" >
                                 <Avatar sx={{ width: 100, height: 100, margin: '0 auto', mb: 2, cursor: isEditMode ? 'pointer' : 'default' }} src={selectedImage ? URL.createObjectURL(selectedImage) : currentUser.photoURL}
-                                alt={currentUser.displayName} />
-                            
-                            <input
-                                id="avatar-upload"
-                                type="file"
-                                accept="image/*"
-                                style={{ display: 'none' }}
-                                onChange={handleImageChange}
-                                disabled={!isEditMode}
+                                    alt={currentUser.displayName} />
+
+                                <input
+                                    id="avatar-upload"
+                                    type="file"
+                                    accept="image/*"
+                                    style={{ display: 'none' }}
+                                    onChange={handleImageChange}
+                                    disabled={!isEditMode}
+                                />
+                            </label>
+
+                            <TextField
+                                fullWidth
+                                label="Display Name"
+                                variant="outlined"
+                                value={displayName}
+                                onChange={(e) => setDisplayName(e.target.value)}
+                                sx={{ mb: 2 }}
                             />
-                        </label>
 
-                        <TextField
-                            fullWidth
-                            label="Display Name"
-                            variant="outlined"
-                            value={displayName}
-                            onChange={(e) => setDisplayName(e.target.value)}
-                            sx={{ mb: 2 }}
-                        />
-
-                        <TextField
-                            fullWidth
-                            type='email'
-                            label="Email"
-                            variant="outlined"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
+                            <TextField
+                                fullWidth
+                                type='email'
+                                label="Email"
+                                variant="outlined"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
 
 
-                        {/* <TextField
+                            {/* <TextField
                             fullWidth
                             label="Phone number"
                             variant="outlined"
@@ -280,35 +289,35 @@ const Profile = ({ isOpen, onClose }) => {
                             onChange={(e) => setPhoneNumber(e.target.value)}
                         /> */}
 
-                        <TextField
-                            fullWidth
-                            label="Password"
-                            type={showPassword ? 'text' : 'password'}
-                            value={password}
-                            onChange={handlePasswordChange}
-                            variant="outlined"
-                            margin="normal"
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            onClick={handleTogglePasswordVisibility}
-                                            edge="end"
-                                        >
-                                            {showPassword ? <Visibility /> : <VisibilityOff />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
+                            <TextField
+                                fullWidth
+                                label="Password"
+                                type={showPassword ? 'text' : 'password'}
+                                value={password}
+                                onChange={handlePasswordChange}
+                                variant="outlined"
+                                margin="normal"
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                onClick={handleTogglePasswordVisibility}
+                                                edge="end"
+                                            >
+                                                {showPassword ? <Visibility /> : <VisibilityOff />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
 
-                        <Button type="submit" variant="outlined" fullWidth sx={{ mt: 2 }}>
-                            <SaveAsIcon sx={{ marginRight: "5px" }} /> Save
-                        </Button>
-        
-                        {err && <Alert severity='error'>{err}</Alert>}
+                            <Button type="submit" variant="outlined" fullWidth sx={{ mt: 2 }}>
+                                <SaveAsIcon sx={{ marginRight: "5px" }} /> Save
+                            </Button>
 
-                    </form>
+                            {err && <Alert severity='error'>{err}</Alert>}
+
+                        </form>
                     </div>
 
                 ) : (
@@ -334,8 +343,8 @@ const Profile = ({ isOpen, onClose }) => {
 
                 {!currentUser.emailVerified ? (
                     <Button variant="outlined" fullWidth onClick={handleVerifyMail} disabled={isResendDisabled}>
-                         {isResendDisabled ? `Resend Email (${Math.ceil(resendTimeout / 1000)}s)` : 'Verify the email'}
-                        
+                        {isResendDisabled ? `Resend Email (${Math.ceil(resendTimeout / 1000)}s)` : 'Verify the email'}
+
                     </Button>)
                     :
                     (<Button variant="outlined" fullWidth disabled>
@@ -348,8 +357,8 @@ const Profile = ({ isOpen, onClose }) => {
                         <GoogleIcon sx={{ mr: 0.5 }} /> Link Google Account
                     </Button>
                 ) : (
-                    <Button variant="outlined" fullWidth>
-                        <LinkOff /> Google Account Linked
+                    <Button variant="outlined" fullWidth sx={{ mt: 2 }} onClick={handleUnLinkGoogle}>
+                        <LinkOff sx={{ mr: 0.5 }} /> Google Account Linked
                     </Button>
                 )}
 
@@ -361,15 +370,15 @@ const Profile = ({ isOpen, onClose }) => {
                     />
                 )}
                 {isEmailSent && !isEditMode &&
-                <Snackbar  open={isEmailSent} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                }}  >
-                    <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                    Email sent successfully. Please check your inbox.
+                    <Snackbar open={isEmailSent} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                    }}  >
+                        <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+                            Email sent successfully. Please check your inbox.
 
-                    </Alert>
-                </Snackbar>
+                        </Alert>
+                    </Snackbar>
                 }
 
             </Box>
