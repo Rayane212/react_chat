@@ -1,56 +1,55 @@
 import React, { useState } from 'react';
-import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
-import { auth, db, googleProvider } from '../firebase'
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth, db } from '../firebase'
 import { useNavigate, Link } from 'react-router-dom'
-import { Alert, IconButton } from '@mui/material';
-import { FacebookOutlined, Visibility, VisibilityOff } from '@mui/icons-material';
-import { collection, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import GoogleIcon from '@mui/icons-material/Google';
+import { Alert } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { collection, doc, updateDoc } from 'firebase/firestore';
 
 const Login = () => {
     const [err, setErr] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate()
 
-    const handleSignInWithGoogle = async () => {
-        try {
-            const res = await signInWithPopup(auth, googleProvider);
+    // const handleSignInWithGoogle = async () => {
+    //     try {
+    //         const res = await signInWithPopup(auth, googleProvider);
 
-            const userRef = doc(db, "users", res.user.email);
-            const userSnap = await getDoc(userRef);
+    //         const userRef = doc(db, "users", res.user.email);
+    //         const userSnap = await getDoc(userRef);
 
-            console.log(userSnap)
+    //         console.log(userSnap)
 
-             if (!userSnap.googleLinked) {
-                await createNewUser(res.user);
-            }
+    //         if (!userSnap.googleLinked) {
+    //             await createNewUser(res.user);
+    //         }
 
-            navigate("/");
+    //         navigate("/");
 
-        } catch (error) {
-            console.error("Error signing in with Google:", error);
-        }
-    };
+    //     } catch (error) {
+    //         console.error("Error signing in with Google:", error);
+    //     }
+    // };
 
-   
 
-    const createNewUser = async (user) => {
-        try {
-            const { uid } = user;
-            await updateDoc(doc(db, "users", uid), {
-                googleLinked: true,
-                online: true,
-            });
-            const userChats = doc(db, "userChats", uid )
-            console.log(getDoc(userChats))
-            if (getDoc(userChats) === null ){
-                await setDoc(doc(db, "userChats", uid), {});
-            }
-           
-        } catch (error) {
-            console.error("Error creating new user:", error);
-        }
-    };
+
+    // const createNewUser = async (user) => {
+    //     try {
+    //         const { uid } = user;
+    //         await updateDoc(doc(db, "users", uid), {
+    //             googleLinked: true,
+    //             online: true,
+    //         });
+    //         const userChats = doc(db, "userChats", uid)
+    //         console.log(getDoc(userChats))
+    //         if (getDoc(userChats) === null) {
+    //             await setDoc(doc(db, "userChats", uid), {});
+    //         }
+
+    //     } catch (error) {
+    //         console.error("Error creating new user:", error);
+    //     }
+    // };
 
 
 
@@ -98,14 +97,14 @@ const Login = () => {
                             {showPassword ? <Visibility /> : <VisibilityOff />}
                         </span>
                     </div>
-                    <div style={{ margin: '0 auto' }}>
+                    {/* <div style={{ margin: '0 auto' }}>
                         <IconButton sx={{ width: 'fit-content', marginRight: '5px' }} onClick={handleSignInWithGoogle}>
                             <GoogleIcon />
                         </IconButton>
                         <IconButton sx={{ width: 'fit-content', marginLeft: '5px' }} onClick={handleSignInWithGoogle}>
                             <FacebookOutlined />
                         </IconButton>
-                    </div>
+                    </div> */}
                     <button>Sign in</button>
                     {err !== "" && <Alert className="" severity="error" >{err}</Alert>}
 

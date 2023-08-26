@@ -1,19 +1,18 @@
 import { collection, doc, getDoc, onSnapshot, updateDoc } from 'firebase/firestore';
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { auth, db } from '../firebase';
+import { db } from '../firebase';
 import { AuthContext } from '../context/AuthContext';
 import { ChatContext } from '../context/ChatContext';
 import { Avatar, Tooltip } from '@mui/material';
-import { signOut } from 'firebase/auth';
-import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 import StyledBadge from './mui/StyledBadge';
 import Notif from '../img/notification.png';
 import { useNavigate } from 'react-router-dom';
+import MenuProfile from './mui/MenuProfile';
 
 
 
 const Chats = () => {
-    const [interact, setInteract] = useState(false)
+    const [interact, setInteract] = useState(false);
     const [chats, setChats] = useState([]);
     const [onlineUsers, setOnlineUsers] = useState({});
     const { currentUser } = useContext(AuthContext)
@@ -25,7 +24,6 @@ const Chats = () => {
             'https://firebasestorage.googleapis.com/v0/b/react-chat-6ddfc.appspot.com/o/audio%2FNewMessage.mp3?alt=media&token=3a5bbd37-fa52-4ff6-a619-09f515ada47c'
         );
     }, []);
-
 
 
     const handlePlaySound = useCallback(() => {
@@ -164,10 +162,6 @@ const Chats = () => {
         }
     };
 
-    const handleSignOut = async () => {
-        await signOut(auth);
-        await updateDoc(doc(db, "users", currentUser.uid), { online: "offline" });
-    };
 
     const sortChats = (a, b) => {
         if (b[1]?.lastMessage?.unread && !a[1]?.lastMessage?.unread) {
@@ -178,6 +172,7 @@ const Chats = () => {
 
         return b[1].date - a[1].date;
     };
+
 
     return (
         <div className='chats'>
@@ -224,9 +219,8 @@ const Chats = () => {
                         </Tooltip>
                     ))}
             <div className='logoutIcon'>
-                <Tooltip title="logout" arrow>
-                    <PowerSettingsNewIcon onClick={() => handleSignOut()} />
-                </Tooltip>
+                    <MenuProfile currentUser={currentUser}/>
+               
             </div>
             <audio style={{ display: "none" }} src={newMessageSound} allow="autoplay" />
         </div>

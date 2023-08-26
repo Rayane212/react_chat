@@ -1,17 +1,18 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { signOut } from 'firebase/auth';
-import { auth, db } from '../firebase';
+import {  db } from '../firebase';
 import { AuthContext } from '../context/AuthContext';
-import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import { ChatContext } from '../context/ChatContext';
 import { Avatar, Badge, Tooltip } from '@mui/material';
-import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
+import MenuProfile from './mui/MenuProfile';
 
 const Navbar = () => {
     const { currentUser } = useContext(AuthContext);
     const { dispatch } = useContext(ChatContext);
     const [unreadCount, setUnreadCount] = useState(0);
+
+
 
 
 
@@ -50,16 +51,11 @@ const Navbar = () => {
     const handleFriends = () => {
         dispatch({ type: "DISPLAY_FRIENDS" });
     }
-    const handleSignOut = async () => {
-        await signOut(auth);
-        await updateDoc(doc(db, "users", currentUser.uid), { online: "offline" });
-    };
-
-
+ 
     return (
         <div className='navbar'>
             <div className='logoMsg'>
-                <Tooltip title="see all users" arrow>
+                <Tooltip title="See all users" arrow>
                     <div>
                         <Badge badgeContent={unreadCount} color="error" overlap="circular" size="smaill" anchorOrigin={{
                             vertical: 'top',
@@ -76,14 +72,13 @@ const Navbar = () => {
 
             </div>
             <div className="user">
-                <Avatar className="img" src={currentUser.photoURL} alt={currentUser.displayName} />
+                <Avatar className="img" src={currentUser.photoURL} alt={currentUser.displayName}/>
+
                 <span>{currentUser.displayName}</span>
-                <Tooltip title="logout" arrow>
-                    <PowerSettingsNewIcon className='logout' onClick={() => handleSignOut()} />
-                </Tooltip>
-            </div>
-
-
+                
+                <MenuProfile  currentUser={currentUser}/>
+                
+                </div>
         </div>
     );
 };
