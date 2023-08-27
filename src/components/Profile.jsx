@@ -146,9 +146,9 @@ const Profile = ({ isOpen, onClose }) => {
 
     };
 
-    const handleLinkProvider = async (provider) => {
+    const handleLinkGoogle = async () => {
         try {
-            await linkWithPopup(auth.currentUser, provider)
+            await linkWithPopup(auth.currentUser, googleProvider)
             setIsGoogleLinked(true)
 
         } catch (error) {
@@ -156,9 +156,9 @@ const Profile = ({ isOpen, onClose }) => {
         }
     }
 
-    const handleUnLink = async (provider) => {
+    const handleUnLinkGoogle = async () => {
         try {
-            await unlink(auth.currentUser, provider)
+            await unlink(auth.currentUser, "google.com")
             setIsGoogleLinked(false)
 
         } catch (error) {
@@ -372,11 +372,11 @@ const Profile = ({ isOpen, onClose }) => {
                 }
 
                 {!currentUser.providerData || !isGoogleLinked ? (
-                    <Button variant="outlined" fullWidth sx={{ mt: 2 }} onClick={handleLinkProvider(googleProvider)}>
+                    <Button variant="outlined" fullWidth sx={{ mt: 2 }} onClick={handleLinkGoogle}>
                         <GoogleIcon sx={{ mr: 0.5 }} /> Link Google Account
                     </Button>
                 ) : (
-                    <Button variant="outlined" fullWidth sx={{ mt: 2 }} onClick={handleUnLink('google.com')}>
+                    <Button variant="outlined" fullWidth sx={{ mt: 2 }} onClick={handleUnLinkGoogle}>
                         <LinkOff sx={{ mr: 0.5 }} /> Google Account Linked
                     </Button>
                 )}
