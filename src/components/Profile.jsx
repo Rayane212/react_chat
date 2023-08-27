@@ -27,6 +27,19 @@ const Profile = ({ isOpen, onClose }) => {
     const [showPassword, setShowPassword] = useState(false);
     const [selectedImage, setSelectedImage] = useState("");
 
+    const [isGoogleLinked, setIsGoogleLinked] = useState(false);
+
+    const [isEmailVerified, setIsEmailVerified] = useState(currentUser.emailVerified);
+
+
+    useEffect(() => {
+        if (currentUser && currentUser.providerData) {
+            setIsGoogleLinked(
+                currentUser.providerData.some((provider) => provider.providerId === 'google.com')
+            );
+        }
+    }, [currentUser]);
+
     useEffect(() => {
         if (isResendDisabled) {
             let timer = setInterval(() => {
@@ -133,27 +146,30 @@ const Profile = ({ isOpen, onClose }) => {
 
     };
 
-    const handleLinkGoogle = async () => {
+    const handleLinkProvider = async (provider) => {
         try {
-            await linkWithPopup(auth.currentUser, googleProvider)
+            await linkWithPopup(auth.currentUser, provider)
+            setIsGoogleLinked(true)
 
         } catch (error) {
             console.error(error)
         }
     }
 
-    const handleUnLinkGoogle = async () => {
+    const handleUnLink = async (provider) => {
         try {
-            await unlink(auth.currentUser, 'google.com')
+            await unlink(auth.currentUser, provider)
+            setIsGoogleLinked(false)
 
         } catch (error) {
             console.error(error)
         }
     }
 
-    const handleVerifyMail = () => {
+    const handleVerifyMail = async () => {
         try {
-            sendEmailVerification(currentUser)
+            await sendEmailVerification(currentUser)
+            setIsEmailVerified(false);
             setIsEmailSent(true);
             setIsResendDisabled(true);
             setResendTimeout(60000);
@@ -164,6 +180,10 @@ const Profile = ({ isOpen, onClose }) => {
             setErr("Please try later")
         }
     }
+
+    useEffect(() => {
+        setIsEmailVerified(currentUser.emailVerified);
+    }, [currentUser]);
 
     const handleTogglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -341,10 +361,9 @@ const Profile = ({ isOpen, onClose }) => {
 
                 <Divider sx={{ my: 2 }} />
 
-                {!currentUser.emailVerified ? (
+                {!isEmailVerified ? (
                     <Button variant="outlined" fullWidth onClick={handleVerifyMail} disabled={isResendDisabled}>
                         {isResendDisabled ? `Resend Email (${Math.ceil(resendTimeout / 1000)}s)` : 'Verify the email'}
-
                     </Button>)
                     :
                     (<Button variant="outlined" fullWidth disabled>
@@ -352,12 +371,12 @@ const Profile = ({ isOpen, onClose }) => {
                     </Button>)
                 }
 
-                {!currentUser.providerData || !currentUser.providerData.some((provider) => provider.providerId === 'google.com') ? (
-                    <Button variant="outlined" fullWidth sx={{ mt: 2 }} onClick={handleLinkGoogle}>
+                {!currentUser.providerData || !isGoogleLinked ? (
+                    <Button variant="outlined" fullWidth sx={{ mt: 2 }} onClick={handleLinkProvider(googleProvider)}>
                         <GoogleIcon sx={{ mr: 0.5 }} /> Link Google Account
                     </Button>
                 ) : (
-                    <Button variant="outlined" fullWidth sx={{ mt: 2 }} onClick={handleUnLinkGoogle}>
+                    <Button variant="outlined" fullWidth sx={{ mt: 2 }} onClick={handleUnLink('google.com')}>
                         <LinkOff sx={{ mr: 0.5 }} /> Google Account Linked
                     </Button>
                 )}
@@ -369,7 +388,7 @@ const Profile = ({ isOpen, onClose }) => {
                         onReauthenticate={handleReauthenticate}
                     />
                 )}
-                {isEmailSent && !isEditMode &&
+                {isEmailSent &&
                     <Snackbar open={isEmailSent} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{
                         vertical: 'top',
                         horizontal: 'right',
