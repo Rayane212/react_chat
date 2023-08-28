@@ -35,11 +35,9 @@ const Chats = () => {
             newMessageSound.currentTime = 0;
         });
     }, [interact, newMessageSound]);
-    
+
     useEffect(() =>{
-        Object.entries(chats).forEach((chat, chatId) => {
-            console.log(chat[0])
-           
+        Object.entries(chats).forEach((chat, chatId) => {   
             updateDoc(doc(db, 'userChats', chat[1].userInfo.uid), {
                      [chat[0] + '.userInfo']: {
                          displayName: currentUser.displayName,
