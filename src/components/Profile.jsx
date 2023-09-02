@@ -55,7 +55,7 @@ const Profile = ({ isOpen, onClose }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true)
+        setLoading(true);
         const date = new Date().getTime();
         const storageRef = ref(storage, `img/avatars/${displayName + date}`);
         if (selectedImage) {
@@ -83,7 +83,9 @@ const Profile = ({ isOpen, onClose }) => {
 
                 await updateDoc(doc(collection(db, "users"), currentUser.uid), {
                     displayName: displayName,
+                    email: email
                 });
+               
 
             } catch (err) {
                 setErr("Something went wrong");
@@ -361,7 +363,7 @@ const Profile = ({ isOpen, onClose }) => {
 
                 <Divider sx={{ my: 2 }} />
 
-                {!isEmailVerified ? (
+                {!isEmailVerified && !currentUser.emailVerified ? (
                     <Button variant="outlined" fullWidth onClick={handleVerifyMail} disabled={isResendDisabled}>
                         {isResendDisabled ? `Resend Email (${Math.ceil(resendTimeout / 1000)}s)` : 'Verify the email'}
                     </Button>)
