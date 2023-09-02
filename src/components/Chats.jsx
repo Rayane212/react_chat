@@ -36,6 +36,19 @@ const Chats = () => {
         });
     }, [interact, newMessageSound]);
 
+    useEffect(() =>{
+        Object.entries(chats).forEach((chat, chatId) => {   
+            updateDoc(doc(db, 'userChats', chat[1].userInfo.uid), {
+                     [chat[0] + '.userInfo']: {
+                         displayName: currentUser.displayName,
+                         photoURL: currentUser.photoURL,
+                         uid: currentUser.uid
+                     },
+                 });
+        });
+
+    },[chats, currentUser])
+
     useEffect(() => {
         const getChats = () => {
             const unsub = onSnapshot(doc(db, "userChats", currentUser.uid), (doc) => {
@@ -105,8 +118,6 @@ const Chats = () => {
             }
         });
     }, [chats, handlePlaySound, currentUser.uid, dispatch, navigate]);
-
-
 
     const handleSelect = async (chatId, u) => {
         if (chats[chatId]?.lastMessage?.unread) {
