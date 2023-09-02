@@ -23,7 +23,7 @@ const Profile = ({ isOpen, onClose }) => {
     const [displayName, setDisplayName] = useState(currentUser.displayName);
     const [email, setEmail] = useState(currentUser.email);
     // const [phoneNumber, setPhoneNumber] = useState(currentUser.phoneNumber || ""); 
-    const [password, setPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [selectedImage, setSelectedImage] = useState("");
 
@@ -85,7 +85,7 @@ const Profile = ({ isOpen, onClose }) => {
                     displayName: displayName,
                     email: email
                 });
-               
+
 
             } catch (err) {
                 setErr("Something went wrong");
@@ -101,7 +101,7 @@ const Profile = ({ isOpen, onClose }) => {
             setIsEditMode(false);
         }
 
-        if (password !== "") {
+        if (newPassword !== "") {
             setIsReauthModalOpen(true);
         } else {
             setLoading(false);
@@ -128,7 +128,7 @@ const Profile = ({ isOpen, onClose }) => {
                 await sendEmailVerification(currentUser);
             }
 
-            if (password !== "") {
+            if (newPassword !== "") {
                 await updatePassword(currentUser, password).then(() => {
                     console.log("Password updated")
                 }).catch((error) => {
@@ -191,7 +191,7 @@ const Profile = ({ isOpen, onClose }) => {
         setShowPassword(!showPassword);
     };
     const handlePasswordChange = (e) => {
-        setPassword(e.target.value);
+        setNewPassword(e.target.value);
     };
 
     const handleImageChange = (e) => {
@@ -315,7 +315,7 @@ const Profile = ({ isOpen, onClose }) => {
                                 fullWidth
                                 label="Password"
                                 type={showPassword ? 'text' : 'password'}
-                                value={password}
+                                value={newPassword}
                                 onChange={handlePasswordChange}
                                 variant="outlined"
                                 margin="normal"
