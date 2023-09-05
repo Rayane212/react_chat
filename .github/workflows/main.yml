@@ -15,11 +15,26 @@ jobs:
 
     - name: Install dependencies
       run: npm install
-
-    - name: Tests
-      run: |
-        npm test
     
     - name : Scripts
       run: | 
         echo "Ce workflow a été exécuté avec succès !"
+ 
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Run Tests
+        run: |
+          npm test
+
+  deploy : 
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Deploy & Production 
+        run: |
+          npm build
+
