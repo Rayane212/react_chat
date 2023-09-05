@@ -1,8 +1,21 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
+import AuthContext from './context/AuthContext'; 
 import App from './App';
 
-test('renders learn react link', () => {
-  render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+const authContextValue = {
+  currentUser: null, 
+};
+
+test('rendre App.js sans erreur', () => {
+  render(
+    <BrowserRouter>
+      <AuthContext.Provider value={authContextValue}>
+        <App />
+      </AuthContext.Provider>
+    </BrowserRouter>
+  );
+
+
 });
