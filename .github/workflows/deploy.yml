@@ -1,0 +1,24 @@
+name: Deploy 
+
+on:
+    push:
+      branches:
+        - master
+
+
+jobs: 
+    deploy : 
+        runs-on: ubuntu-latest    
+        steps:
+          - uses : actions/checkout@v2
+          - run: npm install
+          - name: Download artifact
+            uses: actions/download-artifact@v2
+            with:
+              name: my-artifact 
+              path: react_chat
+
+          # - name: Deploy & Production 
+          #   run: |
+          #     npm run deploy
+  
