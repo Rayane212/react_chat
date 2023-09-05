@@ -1,9 +1,10 @@
 name: CI/CD Pipeline
 
 on:
-  pull_request:
+  push:
     branches:
       - master
+      - branch_test
 
 jobs:
   build:
@@ -12,6 +13,9 @@ jobs:
     steps:
     - name: Checkout the code
       uses: actions/checkout@v2
+
+    - run: ls -la
+    - run: pwd
 
     - run: npm install
 
