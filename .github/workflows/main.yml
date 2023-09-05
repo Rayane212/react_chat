@@ -19,3 +19,7 @@ jobs:
     - name: Tests
       run: |
         npm test
+    
+    - name : Scripts
+      run: | 
+        echo "Ce workflow a été exécuté avec succès !"
