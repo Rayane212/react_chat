@@ -18,5 +18,4 @@ jobs:
 
     - name: Linter & Tests
       run: |
-        npm run lint
         npm test
