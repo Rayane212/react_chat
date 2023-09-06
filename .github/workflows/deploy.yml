@@ -13,9 +13,10 @@ jobs:
       - uses: actions/checkout@v3
       - run: npm install
       - name: Download artifact
-        uses: softprops/action-gh-release@v1
+        uses: actions/download-artifact@v2
         with:
-          files: build/*
+          name: my-build
+          path: build/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
