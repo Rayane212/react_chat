@@ -48,7 +48,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: my-build
-      - run: ls -R
+      - run: ls
 
       - name: Deploy to Production
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -56,5 +56,5 @@ jobs:
           server: 51.91.148.161
           username: ducobu
           password: ducobu
-          local-dir: ./
+          local-dir: my-build/
           server-dir: Rayane/
