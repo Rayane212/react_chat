@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - branch_test
 
 jobs:
   build:
@@ -27,7 +26,6 @@ jobs:
         run: |
           echo "Ce workflow a été exécuté avec succès !"
 
-
   test:
     runs-on: ubuntu-latest
     needs: build
@@ -35,6 +33,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: npm install
+
       - name: Run Tests
         run: |
           npm test || exit 1
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm install
+
+      - name: Deploy to Production
+        run: |
+          # Ajoutez ici les commandes pour déployer votre application en production
