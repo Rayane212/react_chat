@@ -52,8 +52,8 @@ jobs:
       - name: Deploy to Production
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: 51.91.148.161
-          username: ducobu
+          server: files.000webhost.com
+          username: rayaneh
           password: ${{ secrets.PASSWORD_FTP }}
           local-dir: ./
-          server-dir: Rayane/
+          server-dir: public_html/
