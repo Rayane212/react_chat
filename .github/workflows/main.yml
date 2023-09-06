@@ -47,7 +47,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
-          name: my-build  
+          name: my-build
 
       - name: Deploy to Production
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -56,4 +56,4 @@ jobs:
           username: ducobu
           password: ducobu
           local-dir: build/
-          server-dir: Rayane
+          server-dir: Rayane/
