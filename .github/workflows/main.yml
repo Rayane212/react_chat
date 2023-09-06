@@ -45,16 +45,15 @@ jobs:
       - uses: actions/checkout@v3
       - run: npm install
       - name: Download artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: my-build
-      - run: ls
 
       - name: Deploy to Production
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: 51.91.148.161
           username: ducobu
-          password: ducobu
-          local-dir: my-build/
+          password: ${{ secrets.PASSWORD_FTP }}
+          local-dir: ./
           server-dir: Rayane/
