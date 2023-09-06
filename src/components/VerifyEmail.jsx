@@ -1,14 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { sendEmailVerification, signOut } from "firebase/auth";
+import { sendEmailVerification } from "firebase/auth";
 import { Alert, Box, Button, IconButton, Modal, Typography } from '@mui/material';
-import { Close, ExitToApp, Send } from '@mui/icons-material';
+import { Close, Send } from '@mui/icons-material';
 import { AuthContext } from '../context/AuthContext';
-import { doc, updateDoc } from 'firebase/firestore';
-import { auth, db } from '../firebase';
 
 
 
-const VerifyEmail = ({isOpen, isClose}) => {
+
+const VerifyEmail = ({ isOpen, isClose }) => {
     const [showEmailVerificationModal, setShowEmailVerificationModal] = useState(false);
     const [isEmailSent, setIsEmailSent] = useState(false);
     const [isResendDisabled, setIsResendDisabled] = useState(false);
@@ -19,10 +18,10 @@ const VerifyEmail = ({isOpen, isClose}) => {
     useEffect(() => {
         if (currentUser && !currentUser.emailVerified) {
             setShowEmailVerificationModal(true);
-          } else {
+        } else {
             setShowEmailVerificationModal(false);
-          }
-    },[currentUser])
+        }
+    }, [currentUser])
 
     useEffect(() => {
         if (isResendDisabled) {
@@ -51,10 +50,6 @@ const VerifyEmail = ({isOpen, isClose}) => {
     };
 
 
-    const handleSignOut = async () => {
-        await signOut(auth);
-        await updateDoc(doc(db, "users", currentUser.uid), { online: "offline" });
-    };
     const handleCloseModal = () => {
         setShowEmailVerificationModal(false);
     };
@@ -84,20 +79,12 @@ const VerifyEmail = ({isOpen, isClose}) => {
                     Your email is not verified. Please check your inbox and verify your email.
                 </Typography>
 
-                <Button startIcon={<Send />} onClick={handleResendEmail} disabled={isResendDisabled}>
+                <Button startIcon={<Send />} sx={{mt : 1, mb:-2}} onClick={handleResendEmail} disabled={isResendDisabled}>
                     {isResendDisabled ? `Resend Email (${Math.ceil(resendTimeout / 1000)}s)` : 'Resend Email'}
                 </Button>
-                {currentUser && !currentUser.emailVerified && (
-                    <Button
 
-                        onClick={handleSignOut}
-                        startIcon={<ExitToApp />}
-                    >
-                        Sign Out
-                    </Button>
-                )}
                 {isEmailSent && (
-                    <Alert severity="success" sx={{ mt: 2 }} >
+                    <Alert severity="success" sx={{ mt: 3 }} >
                         Email sent successfully. Please check your inbox.
                     </Alert>
                 )}

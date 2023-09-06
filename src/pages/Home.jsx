@@ -1,6 +1,7 @@
 import React, { useContext, useEffect } from 'react';
 import Sidebar from './../components/Sidebar';
 import Chat from '../components/Chat';
+import VerifyEmail from '../components/VerifyEmail';
 import { ChatContext } from '../context/ChatContext';
 import Friends from '../components/Friends';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -51,12 +52,13 @@ const Home = () => {
   }, [currentUser]);
 
 
-  
+
   return (
     <div className="home">
       <div className='container'>
         <Sidebar />
         {data.displayFriends ? <Friends /> : <Chat />}
+        {!currentUser.emailVerified && <VerifyEmail />}
       </div>
     </div>
   );

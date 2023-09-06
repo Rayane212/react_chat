@@ -1,10 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { collection, doc, getDoc, getDocs, onSnapshot, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
-import { Card, CardHeader, Avatar, CircularProgress, Backdrop, Tooltip, Snackbar, Alert } from '@mui/material';
+import { Card, CardHeader, Avatar, Tooltip, Snackbar, Alert } from '@mui/material';
 import { ChatContext } from '../context/ChatContext';
 import { AuthContext } from '../context/AuthContext';
 import StyledBadge from './mui/StyledBadge';
+import Loading from './mui/Loading';
 
 const Friends = () => {
     const [users, setUsers] = useState([]);
@@ -131,12 +132,7 @@ const Friends = () => {
                 <span>Let's go to chat</span>
             </div>
             {loading && (
-                <Backdrop
-                    sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-                    open={loading}
-                >
-                    <CircularProgress color="inherit" />
-                </Backdrop>
+                <Loading loading={loading} />
             )}
 
             {!loading && (
