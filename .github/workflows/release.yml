@@ -1,12 +1,12 @@
-name: Deploy
+name: Release
 
 on:
   workflow_run:
     workflows: ["CI/CD Pipeline"]
     types:
       - completed
-  push: 
-    tags: 
+  push:
+    tags:
       - "v*"
 
 jobs:
@@ -16,39 +16,30 @@ jobs:
       - name: Get latest tag
         id: latest_tag
         run: echo "::set-output name=tag_name::$(git describe --tags --abbrev=0)"
-      
+
       - name: Check if release exists
         id: check_release
         run: |
-                latest_tag="${{ steps.latest_tag.outputs.tag_name }}"
-                release_exists=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/${{ github.repository }}/releases/tags/$latest_tag)
-                if [ "$release_exists" == "200" ]; then
-                  echo "::set-output name=release_exists::true"
-                else
-                  echo "::set-output name=release_exists::false"
-                fi
-      
-      - name: Checkout the code
-        uses: actions/checkout@v3
-      
-      - name: Install dependencies
-        run: npm install
-      
+          latest_tag="${{ steps.latest_tag.outputs.tag_name }}"
+          release_exists=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/${{ github.repository }}/releases/tags/$latest_tag)
+          if [ "$release_exists" == "200" ]; then
+            echo "::set-output name=release_exists::true"
+          else
+            echo "::set-output name=release_exists::false"
+          fi
+
+      - uses: actions/checkout@v3
+      - run: |
+              npm install
+              npm run build
+
       - name: Create GitHub Release
         id: create_release
         if: steps.check_release.outputs.release_exists != 'true'
         uses: softprops/action-gh-release@v1
         with:
+          name: build
           files: |
-                  build/*  
+            build/*
           tag_name: ${{ steps.latest_tag.outputs.tag_name }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Get Release URL
-        run: |
-          if [[ -n "${{ steps.create_release.outputs.html_url }}" ]]; then
-            echo "Release URL: ${{ steps.create_release.outputs.html_url }}"
-          else
-            echo "Release URL is not available."
-          fi
+

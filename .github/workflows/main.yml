@@ -51,3 +51,5 @@ jobs:
           server: 51.91.148.161
           username: ducobu
           password: ducobu
+          local-dir: build
+          server-dir: Rayane
