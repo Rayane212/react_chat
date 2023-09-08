@@ -1,4 +1,4 @@
-import { Alert, Avatar, Box, Button, Divider, IconButton, InputAdornment, Modal, Snackbar, TextField, Typography } from '@mui/material';
+import { Alert, Avatar, Backdrop, Box, Button, CircularProgress, Divider, IconButton, InputAdornment, Modal, Snackbar, TextField, Typography } from '@mui/material';
 import { Close, Edit, LinkOff, Visibility, VisibilityOff } from '@mui/icons-material';
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
@@ -10,7 +10,6 @@ import SaveAsIcon from '@mui/icons-material/SaveAs';
 import GoogleIcon from '@mui/icons-material/Google';
 import ReauthenticateModal from './ReauthenticateModal';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import Loading from './mui/Loading';
 
 const Profile = ({ isOpen, onClose }) => {
     const { currentUser } = useContext(AuthContext);
@@ -248,7 +247,12 @@ const Profile = ({ isOpen, onClose }) => {
         <Modal open={isOpen} onClose={handleCloseModal}>
             <Box sx={style}>
                 {loading && (
-                    <Loading loading={loading}/>
+                    <Backdrop
+                        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                        open={loading}
+                    >
+                        <CircularProgress color="inherit" />
+                    </Backdrop>
                 )}
                 <IconButton sx={{ position: 'absolute', top: 0, right: 0 }} onClick={handleCloseModal}>
                     <Close />
