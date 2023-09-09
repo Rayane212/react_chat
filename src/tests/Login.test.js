@@ -67,8 +67,8 @@ describe('<Login />', () => {
     it('Sign In and update collection', async () => {
         render(<Login />);
 
-        const emailInput = screen.getByPlaceholderText('email');
-        const passwordInput = screen.getByPlaceholderText('password');
+        const emailInput = screen.getByPlaceholderText('Email');
+        const passwordInput = screen.getByPlaceholderText('Password');
         const button = screen.getByText('Sign in');
 
         fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
@@ -97,8 +97,8 @@ describe('<Login />', () => {
     it('Password is wrong', async () => {
         render(<Login />);
 
-        const emailInput = screen.getByPlaceholderText('email');
-        const passwordInput = screen.getByPlaceholderText('password');
+        const emailInput = screen.getByPlaceholderText('Email');
+        const passwordInput = screen.getByPlaceholderText('Password');
         const button = screen.getByText('Sign in');
 
         fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
