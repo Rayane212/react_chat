@@ -44,9 +44,9 @@ const Login = () => {
                 <span className='logo'>React Chat</span>
                 <span className='title'>Login</span>
                 <form onSubmit={handleSubmit}>
-                    <input type="email" placeholder="email" name="email" id="email" autoComplete="username" onChange={(e) => setEmail(e.target.value)} value={email} required/>
+                    <input type="email" placeholder="Email" name="email" id="email" autoComplete="email" onChange={(e) => setEmail(e.target.value)} value={email} required/>
                     <div className="passwordInput">
-                        <input type={showPassword ? "text" : "password"} placeholder="password" name="password" id="password" autoComplete="current-password" onChange={(e) => setPassword(e.target.value)} value={password} required />
+                        <input type={showPassword ? "text" : "password"} placeholder="Password" name="password" id="password" autoComplete="current-password" onChange={(e) => setPassword(e.target.value)} value={password} required />
                         <span
                             className="passwordIcon"
                             onClick={() => setShowPassword(!showPassword)}
