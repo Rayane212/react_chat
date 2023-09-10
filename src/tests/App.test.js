@@ -14,13 +14,6 @@ jest.mock('react-router-dom', () => {
   };
 });
 
-const originalProtectedRoute = App.prototype.ProtectedRoute;
-App.prototype.ProtectedRoute = jest.fn(({ children }) => children);
-
-afterAll(() => {
-  App.prototype.ProtectedRoute = originalProtectedRoute; // restaurer la fonction après tous les tests
-});
-
 const renderWithRouter = (ui, { route = '/', authContextValue, chatContextValue } = {}) => {
   window.history.pushState({}, 'Test page', route);
   return render(
