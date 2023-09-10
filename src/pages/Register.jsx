@@ -81,12 +81,13 @@ const Register = () => {
         });
       });
     } catch (error) {
-      const errorCode = error.code;
-      if (errorCode === "auth/email-already-in-use") {
+      if (error.code === "auth/email-already-in-use") {
         setErr("Email already exists. Please use a different email.");
-      } else {
-        setErr("Something went wrong");
       }
+      else if (error.code === "auth/weak-password") {
+        setErr("Password needs at least 6 characters")
+      }
+
       setLoading(false);
     }
   };

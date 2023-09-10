@@ -6,10 +6,11 @@ import { auth, db } from '../firebase'
 import { collection, doc, updateDoc } from 'firebase/firestore';
 
 const mockNavigate = jest.fn();
+const mockLink = jest.fn()
 
 jest.mock('react-router-dom', () => ({
     useNavigate: () => mockNavigate,
-    Link: () => 'Link',
+    Link: () => mockLink,
 }));
 
 jest.mock('firebase/auth', () => {
@@ -108,10 +109,5 @@ describe('<Login />', () => {
         await waitFor(() => {
             expect(screen.getByText('Wrong password')).toBeInTheDocument();
         });
-    });
-
-    it('Navigate on register', async () => {
-
-
     });
 });
