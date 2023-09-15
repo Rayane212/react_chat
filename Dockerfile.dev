@@ -1,0 +1,20 @@
+FROM node:14
+
+WORKDIR /app
+
+RUN useradd -m Dev_User 
+RUN chown Dev_User:Dev_User /app
+
+RUN apt-get update && apt-get install -y git
+
+COPY package*.json ./
+
+USER Dev_User
+
+RUN npm install
+
+ENV CHOKIDAR_USEPOLLING=true
+
+EXPOSE 3000
+ENTRYPOINT [ "/bin/bash", "-c"]
+CMD ["tail -f /dev/null"]

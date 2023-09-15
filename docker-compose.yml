@@ -1,11 +1,15 @@
 version: '3'
 
 services:
-  react_app:
-    image: ryan212/react_chat:latest
+  dev:
+    image: ryan212/react_chat:dev
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     volumes:
-      - .:/app
+      - .:/app 
       - /app/node_modules
+    user : Dev_User
     ports:
       - "3000:3000"
     environment:
