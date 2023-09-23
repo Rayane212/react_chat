@@ -39,8 +39,12 @@ describe('<Login />', () => {
         signInWithEmailAndPassword.mockImplementation((auth, email, password) => {
             if (email === 'test@example.com' && password === 'testPassword') {
                 return Promise.resolve();
-            } else {
+            }
+            else if (password !== 'testPassword') {
                 return Promise.reject({ code: 'auth/wrong-password' });
+            }
+            else if (email !== 'test@example.com') {
+                return Promise.reject({ code: 'auth/user-not-found' });
             }
         });
         collection.mockImplementation((db, path) => {
@@ -81,6 +85,14 @@ describe('<Login />', () => {
         });
 
         await waitFor(() => {
+            expect(screen.queryByText('Wrong password')).not.toBeInTheDocument();
+        });
+
+        await waitFor(() => {
+            expect(screen.queryByText('User not found')).not.toBeInTheDocument();
+        });
+
+        await waitFor(() => {
             expect(collection).toHaveBeenCalledWith(db, "users");
         });
 
@@ -108,6 +120,21 @@ describe('<Login />', () => {
 
         await waitFor(() => {
             expect(screen.getByText('Wrong password')).toBeInTheDocument();
+        });
+    });
+    it('User not found', async () => {
+        render(<Login />);
+
+        const emailInput = screen.getByPlaceholderText('Email');
+        const passwordInput = screen.getByPlaceholderText('Password');
+        const button = screen.getByText('Sign in');
+
+        fireEvent.change(emailInput, { target: { value: 'usernotfound@example.com' } });
+        fireEvent.change(passwordInput, { target: { value: 'testPassword' } });
+        fireEvent.click(button);
+
+        await waitFor(() => {
+            expect(screen.getByText('User not found')).toBeInTheDocument();
         });
     });
 });
