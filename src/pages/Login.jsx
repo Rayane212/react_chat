@@ -21,10 +21,8 @@ const Login = () => {
             await signInWithEmailAndPassword(auth, email, password);
             const usersRef = collection(db, "users");
             await updateDoc(doc(usersRef, auth.currentUser.uid), { online: "online" });
-
-
+            
             navigate("/");
-
         } catch (error) {
             const errorCode = error.code;
             if (errorCode === "auth/user-not-found") {
@@ -34,7 +32,6 @@ const Login = () => {
             } else {
                 setErr("Something went wrong");
             }
-
         }
     }
 

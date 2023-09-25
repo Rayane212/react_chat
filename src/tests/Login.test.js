@@ -80,30 +80,17 @@ describe('<Login />', () => {
         fireEvent.change(passwordInput, { target: { value: 'testPassword' } });
         fireEvent.click(button);
 
-        await waitFor(() => {
-            expect(signInWithEmailAndPassword).toHaveBeenCalledWith(auth, 'test@example.com', 'testPassword');
-        });
+        // Vérifie que les méthodes mockées ont été appelées avec les bons arguments
+        await waitFor(() => expect(signInWithEmailAndPassword).toHaveBeenCalledWith(auth, 'test@example.com', 'testPassword'));
+        await waitFor(() => expect(collection).toHaveBeenCalledWith(db, "users"));
+        await waitFor(() => expect(doc).toHaveBeenCalledWith({}, 'testUID'));
+        await waitFor(() => expect(updateDoc).toHaveBeenCalledWith({}, { online: "online" }));
 
-        await waitFor(() => {
-            expect(screen.queryByText('Wrong password')).not.toBeInTheDocument();
-        });
+        // Vérifie que les messages d'erreur ne sont pas présents dans le document
+        await waitFor(() => expect(screen.queryByText('Wrong password')).not.toBeInTheDocument());
+        await waitFor(() => expect(screen.queryByText('User not found')).not.toBeInTheDocument());
 
-        await waitFor(() => {
-            expect(screen.queryByText('User not found')).not.toBeInTheDocument();
-        });
-
-        await waitFor(() => {
-            expect(collection).toHaveBeenCalledWith(db, "users");
-        });
-
-        await waitFor(() => {
-            expect(doc).toHaveBeenCalledWith({}, 'testUID');
-        });
-
-        await waitFor(() => {
-            expect(updateDoc).toHaveBeenCalledWith({}, { online: "online" });
-        });
-
+        // Vérifie la navigation
         expect(mockNavigate).toHaveBeenCalledWith('/');
     });
 
