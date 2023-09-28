@@ -69,7 +69,6 @@ const Search = () => {
             }
 
         } catch (err) {
-            console.log(err)
             setErr(true);
         }
 
@@ -114,7 +113,7 @@ const Search = () => {
             }
 
         } catch (error) {
-            console.log(error)
+            setErr(true);
         }
 
         setUser(null);
